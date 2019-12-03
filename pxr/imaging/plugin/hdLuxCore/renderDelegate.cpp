@@ -111,30 +111,10 @@ HdLuxCoreRenderDelegate::_Initialize()
 
     lc_session = luxcore::RenderSession::Create(lc_config);
 
-    // Initialize the embree library handle (_rtcDevice).
-    _rtcDevice = rtcNewDevice(nullptr);
-
-    // Register our error message callback.
-    rtcDeviceSetErrorFunction(_rtcDevice, HandleRtcError);
-
-   
-
-    
-
     // Store top-level embree objects inside a render param that can be
     // passed to prims during Sync(). Also pass a handle to the render thread.
     _renderParam = std::make_shared<HdLuxCoreRenderParam>(
-        _rtcDevice, _rtcScene, &_renderThread, &_sceneVersion);
-
-    // Pass the scene handle to the renderer.
-    _renderer.SetScene(_rtcScene);
-
-    // Set the background render thread's rendering entrypoint to
-    // HdLuxCoreRenderer::Render.
-    _renderThread.SetRenderCallback(
-        std::bind(_RenderCallback, &_renderer, &_renderThread));
-    // Start the background render thread.
-    _renderThread.StartThread();
+        lc_scene, lc_config, lc_session, &_sceneVersion);
 
     // Initialize one resource registry for all embree plugins
     std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
@@ -154,12 +134,8 @@ HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
         }
     }
 
-    _renderThread.StopThread();
-
     // Destroy embree library and scene state.
     _renderParam.reset();
-    rtcDeleteScene(_rtcScene);
-    rtcDeleteDevice(_rtcDevice);
 }
 
 HdRenderSettingDescriptorList
@@ -236,7 +212,7 @@ HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index,
                             HdRprimCollection const& collection)
 {
     return HdRenderPassSharedPtr(new HdLuxCoreRenderPass(
-        index, collection, &_renderThread, &_renderer, &_sceneVersion));
+        index, collection, _renderParam, &_sceneVersion));
 }
 
 HdInstancer *
