@@ -28,6 +28,7 @@
 #include "pxr/imaging/hd/renderDelegate.h"
 #include "pxr/imaging/hd/renderThread.h"
 #include "pxr/base/tf/staticTokens.h"
+#include <luxcore/luxcore.h>
 
 #include <mutex>
 
@@ -243,8 +244,10 @@ private:
 
     // LuxCore initialization routine.
     void _Initialize();
-
-
+    luxcore::Properties lc_props;
+    luxcore::RenderConfig *lc_config;
+    luxcore::RenderSession *lc_session;
+    luxcore::Scene *lc_scene;
     // A version counter for edits to _scene.
     std::atomic<int> _sceneVersion;
 
