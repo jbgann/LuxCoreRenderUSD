@@ -14,9 +14,6 @@ public:
 
     virtual HdRenderDelegate *CreateRenderDelegate() override;
 
-    virtual HdRenderDelegate *CreateRenderDelegate(
-        HdRenderSettingsMap const& settingsMap) override;
-
     virtual void DeleteRenderDelegate(
         HdRenderDelegate *renderDelegate) override;
     
