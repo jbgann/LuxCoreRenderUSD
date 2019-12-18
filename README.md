@@ -18,5 +18,6 @@ Prerequisites
 ## Current Status
 Currently the delegate will build against an existing USD installation and has all the necessary placeholder classes and methods to respond to the calls made by the hydra framework.  At this time these placeholder methods make an entry into USD's logging system
 
-##Further Work Required
+----
+## Further Work Required
 The most pressing issue at this time is to parse USD scene objects into meshes readable by LuxCore, and to output the rendered meshes into a GL buffer displayable by the USD Viewport
