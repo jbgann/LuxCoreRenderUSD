@@ -28,8 +28,9 @@
 #include "pxr/imaging/hd/renderDelegate.h"
 #include "pxr/imaging/hd/renderThread.h"
 #include "pxr/base/tf/staticTokens.h"
-#include <luxcore/luxcore.h>
+#include "pxr/imaging/hdLuxCore/renderer.h"
 
+#include <luxcore/luxcore.h>
 #include <mutex>
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -244,7 +245,7 @@ private:
 
     // LuxCore initialization routine.
     void _Initialize();
-    luxcore::Properties lc_props;
+    luxrays::Properties lc_props;
     luxcore::RenderConfig *lc_config;
     luxcore::RenderSession *lc_session;
     luxcore::Scene *lc_scene;

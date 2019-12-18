@@ -24,7 +24,6 @@
 #include "pxr/imaging/glf/glew.h"
 #include "pxr/imaging/hdLuxCore/renderDelegate.h"
 
-#include "pxr/imaging/hdLuxCore/config.h"
 #include "pxr/imaging/hdLuxCore/instancer.h"
 #include "pxr/imaging/hdLuxCore/renderParam.h"
 #include "pxr/imaging/hdLuxCore/renderPass.h"
@@ -33,7 +32,6 @@
 #include "pxr/imaging/hd/resourceRegistry.h"
 #include "pxr/imaging/hd/tokens.h"
 
-#include "pxr/imaging/hdLuxCore/mesh.h"
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
@@ -99,13 +97,13 @@ HdLuxCoreRenderDelegate::_Initialize()
     lc_scene = luxcore::Scene::Create();
 
     lc_scene->Parse(
-				luxcore::Property("scene.camera.lookat.orig")(1.f , 6.f , 3.f) <<
-				luxcore::Property("scene.camera.lookat.target")(0.f , 0.f , .5f) <<
-				luxcore::Property("scene.camera.fieldofview")(60.f));
+				luxrays::Property("scene.camera.lookat.orig")(1.f , 6.f , 3.f) <<
+				luxrays::Property("scene.camera.lookat.target")(0.f , 0.f , .5f) <<
+				luxrays::Property("scene.camera.fieldofview")(60.f));
 
     lc_config = luxcore::RenderConfig::Create(
-        Property("renderengine.type")("PATHCPU") <<
-		Property("sampler.type")("RANDOM"),
+        luxrays::Property("renderengine.type")("PATHCPU") <<
+		luxrays::Property("sampler.type")("RANDOM"),
         lc_scene
     );
 
@@ -212,7 +210,7 @@ HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index,
                             HdRprimCollection const& collection)
 {
     return HdRenderPassSharedPtr(new HdLuxCoreRenderPass(
-        index, collection, _renderParam, &_sceneVersion));
+        index, collection, &_renderThread, &_renderer, &_sceneVersion));
 }
 
 HdInstancer *
@@ -235,7 +233,7 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
                                     SdfPath const& instancerId)
 {
     if (typeId == HdPrimTypeTokens->mesh) {
-        return new HdLuxCoreMesh(rprimId, instancerId);
+        // TODO: add mesh  return new HdLuxCoreMesh(rprimId, instancerId);
     } else {
         TF_CODING_ERROR("Unknown Rprim Type %s", typeId.GetText());
     }

@@ -21,10 +21,14 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#include "pxr/imaging/hdLuxCore/rendererPlugin.h"
 
+#include "pxr/imaging/hdLuxCore/rendererPlugin.h"
 #include "pxr/imaging/hdx/rendererPluginRegistry.h"
 #include "pxr/imaging/hdLuxCore/renderDelegate.h"
+
+#include <iostream>
+using namespace std;
+
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -37,14 +41,8 @@ TF_REGISTRY_FUNCTION(TfType)
 HdRenderDelegate*
 HdLuxCoreRendererPlugin::CreateRenderDelegate()
 {
+    cout << "Starting HdLuxCoreRendererPlugin::CreateRenderDelegate()\n";
     return new HdLuxCoreRenderDelegate();
-}
-
-HdRenderDelegate*
-HdLuxCoreRendererPlugin::CreateRenderDelegate(
-    HdRenderSettingsMap const& settingsMap)
-{
-    return new HdLuxCoreRenderDelegate(settingsMap);
 }
 
 void
@@ -58,6 +56,7 @@ HdLuxCoreRendererPlugin::IsSupported() const
 {
     // Nothing more to check for now, we assume if the plugin loads correctly
     // it is supported.
+    cout << "Starting HdLuxCoreRendererPlugin::IsSupported()\n";
     return true;
 }
 
