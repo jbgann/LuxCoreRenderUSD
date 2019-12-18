@@ -6,13 +6,8 @@ if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
 	message(FATAL_ERROR "64-bit builds not supported: check compiler or Windows shell environment.")
 endif()
 
-# For debug only
-add_compile_definitions(TBB_USE_THREADING_TOOLS=0)
-add_compile_definitions(TBB_USE_ASSERT=0)
-
 # Disable ptex support for now
 set(PXR_ENABLE_PTEX_SUPPORT FALSE)
-
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       ${CMAKE_SOURCE_DIR}/cmake/defaults
@@ -40,7 +35,6 @@ set(CMAKE_CXX_FLAGS "${_PXR_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 include(Public)
 
-# Visual Studio
 set(CMAKE_CXX_STANDARD 14)
 
 # For some reason Python detection doesn't use a directory
@@ -55,10 +49,12 @@ link_directories(${USD_ROOT}/lib)
 # Add LuxCore libraries from the environment
 set(LUXCORE_ROOT $ENV{LUXCORE_ROOT})
 add_library(LuxCore SHARED IMPORTED)
-set_target_properties(LuxCore PROPERTIES
-    IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/luxcore.dll"
-    IMPORTED_IMPLIB "${LUXCORE_ROOT}/lib/luxcore.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"
-)
+if (WIN32)
+    set_target_properties(LuxCore PROPERTIES
+        IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/luxcore.dll"
+        IMPORTED_IMPLIB "${LUXCORE_ROOT}/lib/luxcore.lib"
+        INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"
+    )
+endif()
 
 add_subdirectory(pxr/imaging/plugin/hdLuxCore)
