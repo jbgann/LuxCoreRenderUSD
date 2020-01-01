@@ -35,6 +35,9 @@
 #include "pxr/base/gf/quaternion.h"
 #include "pxr/base/tf/staticTokens.h"
 
+#include <iostream>
+using namespace std;
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 // Define local tokens for the names of the primvars the instancer
@@ -53,6 +56,7 @@ HdLuxCoreInstancer::HdLuxCoreInstancer(HdSceneDelegate* delegate,
                                      SdfPath const &parentId)
     : HdInstancer(delegate, id, parentId)
 {
+    cout << "HdLuxCoreInstancer::HdLuxCoreInstancer(HdSceneDelegate* delegate,SdfPath const& id,SdfPath const &parentId)\n";
 }
 
 HdLuxCoreInstancer::~HdLuxCoreInstancer()
@@ -61,11 +65,13 @@ HdLuxCoreInstancer::~HdLuxCoreInstancer()
         delete it->second;
     }
     _primvarMap.clear();
+    cout << "HdLuxCoreInstancer::~HdLuxCoreInstancer()\n";
 }
 
 void
 HdLuxCoreInstancer::_SyncPrimvars()
 {
+    cout << "HdLuxCoreInstancer::_SyncPrimvars()\n";
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
 
@@ -111,6 +117,7 @@ HdLuxCoreInstancer::_SyncPrimvars()
 VtMatrix4dArray
 HdLuxCoreInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)
 {
+    cout << "VtMatrix4dArray HdLuxCoreInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)\n";
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
 
