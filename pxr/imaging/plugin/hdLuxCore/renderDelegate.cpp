@@ -38,6 +38,9 @@
 #include "pxr/imaging/hd/bprim.h"
 //XXX: Add bprim types
 
+#include <iostream>
+using namespace std;
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 TF_DEFINE_PUBLIC_TOKENS(HdLuxCoreRenderSettingsTokens, HDLUXCORE_RENDER_SETTINGS_TOKENS);
@@ -66,19 +69,23 @@ HdResourceRegistrySharedPtr HdLuxCoreRenderDelegate::_resourceRegistry;
 void
 HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)
 {
+    cout << "void HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)\n";
    return;
 }
 
 static void _RenderCallback(HdLuxCoreRenderer *renderer,
                             HdRenderThread *renderThread)
 {
+    cout << "static void _RenderCallback(HdLuxCoreRenderer *renderer, HdRenderThread *renderThread)\n";
     renderer->Clear();
     renderer->Render(renderThread);
 }
 
 HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()
     : HdRenderDelegate()
+    
 {
+    cout << "HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()\n";
     _Initialize();
 }
 
@@ -86,12 +93,14 @@ HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate(
     HdRenderSettingsMap const& settingsMap)
     : HdRenderDelegate(settingsMap)
 {
+    cout << "HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate(HdRenderSettingsMap settingsMap)\n";
     _Initialize();
 }
 
 void
 HdLuxCoreRenderDelegate::_Initialize()
 {
+    cout << "HdLuxCoreRenderDelegate::_Initialize()\n";
     luxcore::Init();
     
     lc_scene = luxcore::Scene::Create();
@@ -124,6 +133,7 @@ HdLuxCoreRenderDelegate::_Initialize()
 
 HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 {
+    cout << "HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()\n";
     // Clean the resource registry only when it is the last Embree delegate
     {
         std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
@@ -139,47 +149,55 @@ HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 HdRenderSettingDescriptorList
 HdLuxCoreRenderDelegate::GetRenderSettingDescriptors() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetRenderSettingDescriptors()\n";
     return _settingDescriptors;
 }
 
 HdRenderParam*
 HdLuxCoreRenderDelegate::GetRenderParam() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetRenderParam()\n";
     return _renderParam.get();
 }
 
 void
 HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
 {
+    cout << "HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)\n";
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedRprimTypes() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetSupportedRprimTypes()\n";
     return SUPPORTED_RPRIM_TYPES;
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedSprimTypes() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetSupportedSprimTypes()\n";
     return SUPPORTED_SPRIM_TYPES;
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedBprimTypes() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetSupportedBprimTypes()\n";
     return SUPPORTED_BPRIM_TYPES;
 }
 
 HdResourceRegistrySharedPtr
 HdLuxCoreRenderDelegate::GetResourceRegistry() const
 {
+    cout << "HdLuxCoreRenderDelegate::GetResourceRegistry()\n";
     return _resourceRegistry;
 }
 
 HdAovDescriptor
 HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
 {
+    cout << "HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const\n";
     if (name == HdAovTokens->color) {
         return HdAovDescriptor(HdFormatUNorm8Vec4, true,
                                VtValue(GfVec4f(0.0f)));
@@ -209,6 +227,7 @@ HdRenderPassSharedPtr
 HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index,
                             HdRprimCollection const& collection)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index, HdRprimeCollection const& collection)\n";
     return HdRenderPassSharedPtr(new HdLuxCoreRenderPass(
         index, collection, &_renderThread, &_renderer, &_sceneVersion));
 }
@@ -218,12 +237,14 @@ HdLuxCoreRenderDelegate::CreateInstancer(HdSceneDelegate *delegate,
                                         SdfPath const& id,
                                         SdfPath const& instancerId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateInstancer(HdSceneDelegate *delegate, SdfPath const& id, SdfPath const& instancerId)\n";
     return new HdLuxCoreInstancer(delegate, id, instancerId);
 }
 
 void
 HdLuxCoreRenderDelegate::DestroyInstancer(HdInstancer *instancer)
 {
+    cout << "HdLuxCoreRenderDelegate::DestroyInstancer(HdInstancer *instancer)\n";
     delete instancer;
 }
 
@@ -232,6 +253,7 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
                                     SdfPath const& rprimId,
                                     SdfPath const& instancerId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)\n";
     if (typeId == HdPrimTypeTokens->mesh) {
         // TODO: add mesh  return new HdLuxCoreMesh(rprimId, instancerId);
     } else {
@@ -244,6 +266,7 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
 void
 HdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)
 {
+    cout << "HdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)\n";
     delete rPrim;
 }
 
@@ -251,6 +274,7 @@ HdSprim *
 HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
                                     SdfPath const& sprimId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId)\n";
     if (typeId == HdPrimTypeTokens->camera) {
         return new HdCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->extComputation) {
@@ -265,6 +289,7 @@ HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
 HdSprim *
 HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)\n";
     // For fallback sprims, create objects with an empty scene path.
     // They'll use default values and won't be updated by a scene delegate.
     if (typeId == HdPrimTypeTokens->camera) {
@@ -281,6 +306,8 @@ HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
 void
 HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
 {
+    cout << "HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)\n";
+
     delete sPrim;
 }
 
@@ -288,6 +315,7 @@ HdBprim *
 HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)\n";
     if (typeId == HdPrimTypeTokens->renderBuffer) {
         return new HdLuxCoreRenderBuffer(bprimId);
     } else {
@@ -299,6 +327,7 @@ HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId,
 HdBprim *
 HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 {
+    cout << "HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)\n";
     if (typeId == HdPrimTypeTokens->renderBuffer) {
         return new HdLuxCoreRenderBuffer(SdfPath::EmptyPath());
     } else {
@@ -310,6 +339,7 @@ HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 void
 HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
 {
+    cout << "HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)\n";
     delete bPrim;
 }
 

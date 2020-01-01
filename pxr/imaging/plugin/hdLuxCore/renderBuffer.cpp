@@ -106,7 +106,7 @@ HdLuxCoreRenderBuffer::_Deallocate()
 size_t
 HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
 {
-    cout << "HdLuxCoreRenderBuffer::_GetBufferSize()\n";
+    cout << "HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)\n";
     return dims[0] * dims[1] * HdDataSizeOfFormat(format);
 }
 
@@ -114,7 +114,7 @@ HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
 HdFormat
 HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
 {
-    cout << "HdLuxCoreRenderBuffer::_GetSampleFormat()\n";
+    cout << "HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)\n";
     HdFormat component = HdGetComponentFormat(format);
     size_t arity = HdGetComponentCount(format);
 
@@ -139,7 +139,7 @@ HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,
                                HdFormat format,
                                bool multiSampled)
 {
-    cout << "HdLuxCoreRenderBuffer::Allocate()\n";
+    cout << "HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)\n";
     _Deallocate();
 
     if (dimensions[2] != 1) {
@@ -169,7 +169,7 @@ template<typename T>
 static void _WriteSample(HdFormat format, uint8_t *dst,
                          size_t valueComponents, T const* value)
 {
-    cout << "HdLuxCoreRenderBuffer::_WriteSample()\n";
+    cout << "static void _WriteSample(HdFormat format, uint8_t *dst,size_t valueComponents, T const* value)\n";
     HdFormat componentFormat = HdGetComponentFormat(format);
     size_t componentCount = HdGetComponentCount(format);
 
@@ -188,7 +188,7 @@ template<typename T>
 static void _WriteOutput(HdFormat format, uint8_t *dst,
                          size_t valueComponents, T const* value)
 {
-    //cout << "HdLuxCoreRenderBuffer::_WriteOutput()\n";
+    cout << "HdLuxCoreRenderBuffer::_WriteOutputHdFormat format, uint8_t *dst,size_t valueComponents, T const* value)\n";
     HdFormat componentFormat = HdGetComponentFormat(format);
     size_t componentCount = HdGetComponentCount(format);
 
@@ -216,7 +216,7 @@ void
 HdLuxCoreRenderBuffer::Write(
     GfVec3i const& pixel, size_t numComponents, float const* value)
 {
-    cout << "HdLuxCoreRenderBuffer::Write()\n";
+    cout << "void HdLuxCoreRenderBuffer::Write(GfVec3i const& pixel, size_t numComponents, float const* value)\n";
     size_t idx = pixel[1]*_width+pixel[0];
     if (_multiSampled) {
         size_t formatSize = HdDataSizeOfFormat(_GetSampleFormat(_format));
@@ -234,7 +234,7 @@ void
 HdLuxCoreRenderBuffer::Write(
     GfVec3i const& pixel, size_t numComponents, int const* value)
 {
-    cout << "HdLuxCoreRenderBuffer::Write()\n";
+    cout << "HdLuxCoreRenderBuffer::Write(GfVec3i const& pixel, size_t numComponents, int const* value)\n";
     size_t idx = pixel[1]*_width+pixel[0];
     if (_multiSampled) {
         size_t formatSize = HdDataSizeOfFormat(_GetSampleFormat(_format));
@@ -251,7 +251,7 @@ HdLuxCoreRenderBuffer::Write(
 void
 HdLuxCoreRenderBuffer::Clear(size_t numComponents, float const* value)
 {
-    cout << "HdLuxCoreRenderBuffer::Clear()\n";
+    cout << "HdLuxCoreRenderBuffer::Clear(size_t numComponents, float const* value)\n";
     size_t formatSize = HdDataSizeOfFormat(_format);
     for (size_t i = 0; i < _width*_height; ++i) {
         uint8_t *dst = &_buffer[i*formatSize];
@@ -267,7 +267,7 @@ HdLuxCoreRenderBuffer::Clear(size_t numComponents, float const* value)
 void
 HdLuxCoreRenderBuffer::Clear(size_t numComponents, int const* value)
 {
-    cout << "HdLuxCoreRenderBuffer::Clear()\n";
+    cout << "HdLuxCoreRenderBuffer::Clear(size_t numComponents, int const* value)\n";
     size_t formatSize = HdDataSizeOfFormat(_format);
     for (size_t i = 0; i < _width*_height; ++i) {
         uint8_t *dst = &_buffer[i*formatSize];
