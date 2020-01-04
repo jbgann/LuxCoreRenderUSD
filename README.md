@@ -9,7 +9,7 @@ Prerequisites
 -----------------------------
 
 #### Common
-* ** OpenGL 4.1. Note lower OpenGL versions can be used to build, but USD will not be able to run Hydra or this plugin without OpenGL 4.1+.
+* **OpenGL 4.1. Note lower OpenGL versions can be used to build, but USD will not be able to run Hydra or this plugin without OpenGL 4.1+**
 * **LuxCore SDK 2.2**
 * **USD 19.07**
 * **Windows 10 with Visual Studio 2017 or CentOS 7**
