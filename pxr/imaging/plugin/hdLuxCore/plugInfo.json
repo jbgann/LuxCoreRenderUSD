@@ -12,7 +12,7 @@
                     }
                 }
             },
-            "LibraryPath": "../hdLuxCore.dll",
+            "LibraryPath": "../hdLuxCore@CMAKE_SHARED_LIBRARY_SUFFIX@",
             "Name": "hdLuxCore",
             "ResourcePath": "resources",
             "Root": "..",

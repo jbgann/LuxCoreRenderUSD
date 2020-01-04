@@ -58,3 +58,6 @@ pxr_plugin(hdLuxCore
     RESOURCE_FILES
         plugInfo.json
 )
+
+# Install the resource file for USD
+configure_file(plugInfo.json ${USD_ROOT}/plugin/usd/hdLuxCore/resources/plugInfo.json @ONLY)
