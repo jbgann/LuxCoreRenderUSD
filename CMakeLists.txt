@@ -49,15 +49,16 @@ set(CMAKE_CXX_STANDARD 14)
 get_filename_component(PYTHON_LIBRARY_DIR ${PYTHON_LIBRARY} DIRECTORY)
 link_directories(${PYTHON_LIBRARY_DIR})
 
+add_library(LuxCore SHARED IMPORTED)
+
 if (WIN32)
-    add_library(LuxCore SHARED IMPORTED)
+    link_directories(${USD_ROOT}/lib)
     set_target_properties(LuxCore PROPERTIES
         IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/luxcore.dll"
         IMPORTED_IMPLIB "${LUXCORE_ROOT}/lib/luxcore.lib"
         INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"
     )
 else()
-    add_library(LuxCore SHARED IMPORTED)
     set_target_properties(LuxCore PROPERTIES
         IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/libluxcore.so"
         INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"

@@ -12,5 +12,3 @@ cmake --build . --config Release
 cd ..
 copy %LUXCORERENDERUSD_REPO%\build\pxr\imaging\plugin\hdLuxCore\Release\*.dll c:\usd\plugin\usd
 mkdir c:\usd\plugin\usd\hdLuxCore
-mkdir c:\usd\plugin\usd\hdLuxCore\resources
-copy %LUXCORERENDERUSD_REPO%\pxr\imaging\plugin\hdLuxCore\PlugInfo.json c:\usd\plugin\usd\hdluxcore\resources
