@@ -6,6 +6,14 @@ if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
 	message(FATAL_ERROR "64-bit builds not supported: check compiler or Windows shell environment.")
 endif()
 
+# Set paths from the environment
+set(USD_ROOT $ENV{USD_ROOT})
+set(LUXCORE_ROOT $ENV{LUXCORE_ROOT})
+
+# Needed for boost and tbb
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${USD_ROOT}/include)
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${USD_ROOT}/lib ${LUXCORE_ROOT}/lib)
+
 # Disable ptex support for now
 set(PXR_ENABLE_PTEX_SUPPORT FALSE)
 
@@ -41,18 +49,18 @@ set(CMAKE_CXX_STANDARD 14)
 get_filename_component(PYTHON_LIBRARY_DIR ${PYTHON_LIBRARY} DIRECTORY)
 link_directories(${PYTHON_LIBRARY_DIR})
 
-# Add USD Libraries from the environment
-set(USD_ROOT $ENV{USD_ROOT})
-include_directories(${USD_ROOT}/include)
-link_directories(${USD_ROOT}/lib)
-
-# Add LuxCore libraries from the environment
-set(LUXCORE_ROOT $ENV{LUXCORE_ROOT})
 add_library(LuxCore SHARED IMPORTED)
+
 if (WIN32)
+    link_directories(${USD_ROOT}/lib)
     set_target_properties(LuxCore PROPERTIES
         IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/luxcore.dll"
         IMPORTED_IMPLIB "${LUXCORE_ROOT}/lib/luxcore.lib"
+        INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"
+    )
+else()
+    set_target_properties(LuxCore PROPERTIES
+        IMPORTED_LOCATION "${LUXCORE_ROOT}/lib/libluxcore.so"
         INTERFACE_INCLUDE_DIRECTORIES "${LUXCORE_ROOT}/include"
     )
 endif()
