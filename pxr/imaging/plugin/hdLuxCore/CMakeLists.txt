@@ -34,6 +34,7 @@ pxr_plugin(hdLuxCore
         ${RIF_LIBRARY}
         ${OPENSUBDIV_LIBRARIES}
         ${TBB_tbb_LIBRARY}
+        ${OPENGL_gl_LIBRARY}
         LuxCore
 
     INCLUDE_DIRS
