@@ -110,6 +110,15 @@ HdLuxCoreRenderDelegate::_Initialize()
 				luxrays::Property("scene.camera.lookat.target")(0.f , 0.f , .5f) <<
 				luxrays::Property("scene.camera.fieldofview")(60.f));
 
+    //Luxcore requires at least one light source, so we are hardcoding one in until we
+    //can parse them from USD directives
+    lc_scene->Parse(
+        luxrays::Property("scene.lights.defaultsky.type")("sky2") <<
+        luxrays::Property("scene.lights.defaultsky.dir")(0.166974f, 0.59908f, 0.783085f) <<
+        luxrays::Property("scene.lights.defaultsky.turbidity")(2.2f) <<
+        luxrays::Property("scene.lights.defaultsky.gain")(0.8f, 0.8f, 0.8f)
+    );
+
     lc_config = luxcore::RenderConfig::Create(
         luxrays::Property("renderengine.type")("PATHCPU") <<
 		luxrays::Property("sampler.type")("RANDOM"),
@@ -117,6 +126,8 @@ HdLuxCoreRenderDelegate::_Initialize()
     );
 
     lc_session = luxcore::RenderSession::Create(lc_config);
+
+    lc_session->Start();
 
     // Store top-level embree objects inside a render param that can be
     // passed to prims during Sync(). Also pass a handle to the render thread.
@@ -141,6 +152,8 @@ HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
             _resourceRegistry.reset();
         }
     }
+
+    lc_session->Stop();
 
     // Destroy embree library and scene state.
     _renderParam.reset();

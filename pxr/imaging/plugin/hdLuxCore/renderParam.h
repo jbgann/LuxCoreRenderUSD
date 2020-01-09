@@ -64,7 +64,6 @@ public:
         return _scene;
     }
 
-private:
     /// A handle to the top-level LuxCore scene.
     Scene *_scene;
     RenderConfig *_config;
