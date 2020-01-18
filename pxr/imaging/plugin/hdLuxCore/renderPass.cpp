@@ -90,6 +90,13 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
 {
     cout << "HdLuxCoreRenderPass::_Execute()\n";
+    
+    // Set the width and height to match the current viewport
+    GfVec4f viewport = renderPassState->GetViewport();
+    if (_width != viewport[2] || _height != viewport[3]) {
+        _width = viewport[2];
+        _height = viewport[3];
+    }
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdRenderParam *renderParam = renderDelegate->GetRenderParam();
