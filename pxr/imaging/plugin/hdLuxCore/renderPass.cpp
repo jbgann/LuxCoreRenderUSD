@@ -90,13 +90,6 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
 {
     cout << "HdLuxCoreRenderPass::_Execute()\n";
-    
-    // Set the width and height to match the current viewport
-    GfVec4f viewport = renderPassState->GetViewport();
-    if (_width != viewport[2] || _height != viewport[3]) {
-        _width = viewport[2];
-        _height = viewport[3];
-    }
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdRenderParam *renderParam = renderDelegate->GetRenderParam();
@@ -104,12 +97,20 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Retrieve the LuxCore render session
     RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
 
-    // Get the LuxCore film width and height
-    unsigned int filmWidth = lc_session->GetFilm().GetWidth();
-    unsigned int filmHeight = lc_session->GetFilm().GetHeight();
+    // Set the width and height to match the current viewport
+    GfVec4f viewport = renderPassState->GetViewport();
+    if (_width != viewport[2] || _height != viewport[3]) {
+        _width = viewport[2];
+        _height = viewport[3];
+
+        lc_session->Parse(
+            luxrays::Property("film.width")(_width) <<
+		    luxrays::Property("film.height")(_height)
+        );
+    }
 
     // Copy the LuxCore film render into a buffer
-    unique_ptr<float[]> pxl_buffer(new float[filmWidth * filmHeight * 3]);
+    unique_ptr<float[]> pxl_buffer(new float[_width * _height * 3]);
     lc_session->GetFilm().GetOutput<float>(Film::OUTPUT_RGB_IMAGEPIPELINE, pxl_buffer.get(), 0);
 
     // Draw the buffer to the OpenGL viewport
