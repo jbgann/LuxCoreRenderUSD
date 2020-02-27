@@ -93,6 +93,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdRenderParam *renderParam = renderDelegate->GetRenderParam();
+    Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
 
     // Retrieve the LuxCore render session
     RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
@@ -102,11 +103,47 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (_width != viewport[2] || _height != viewport[3]) {
         _width = viewport[2];
         _height = viewport[3];
-
+        lc_session->Pause();
         lc_session->Parse(
             luxrays::Property("film.width")(_width) <<
 		    luxrays::Property("film.height")(_height)
         );
+        lc_session->Resume();
+    }
+
+    GfMatrix4d current_inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
+    GfMatrix4d current_inverseProjectionMatrix = renderPassState->GetProjectionMatrix().GetInverse();
+
+    // Has the view or projection matrix changed?  Reset the camera if so.
+    if (current_inverseViewMatrix != _inverseViewMatrix || current_inverseProjectionMatrix != _inverseProjectionMatrix) {
+        _inverseViewMatrix = current_inverseViewMatrix;
+        _inverseProjectionMatrix = current_inverseProjectionMatrix;
+
+        // The calculations in the following two code blocks are borrowed from the excellent hdospray project
+        // Source: https://github.com/ospray/hdospray
+        GfVec3f origin = GfVec3f(0, 0, 0);
+        GfVec3f direction = GfVec3f(0, 0, -1);
+        GfVec3f up = GfVec3f(0, 1, 0);
+        double projectionMatrix[4][4];
+        float fieldOfView;
+
+        renderPassState->GetProjectionMatrix().Get(projectionMatrix);
+        fieldOfView = (atan(1.0 / projectionMatrix[1][1]) * 180.0 * 2.0) / M_PI;
+        direction = _inverseProjectionMatrix.Transform(direction);
+        direction = _inverseViewMatrix.TransformDir(direction).GetNormalized();
+        up = _inverseViewMatrix.TransformDir(up).GetNormalized();
+        origin = _inverseViewMatrix.Transform(origin);
+
+        // Stopping the session allows the camera to be reset
+        lc_session->Stop();
+        lc_scene->Parse(luxrays::Properties() <<
+            luxrays::Property("scene.camera.type")("perspective") <<
+            luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
+            luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
+            luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
+            luxrays::Property("scene.camera.fieldofview")(fieldOfView)
+            );
+        lc_session->Start();
     }
 
     // Copy the LuxCore film render into a buffer

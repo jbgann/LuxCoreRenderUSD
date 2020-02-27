@@ -29,6 +29,7 @@
 #include "pxr/imaging/hd/renderThread.h"
 #include "pxr/base/tf/staticTokens.h"
 #include "pxr/imaging/hdLuxCore/renderer.h"
+#include "pxr/imaging/hdLuxCore/mesh.h"
 
 #include <luxcore/luxcore.h>
 #include <mutex>

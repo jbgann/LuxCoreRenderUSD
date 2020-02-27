@@ -105,10 +105,10 @@ HdLuxCoreRenderDelegate::_Initialize()
     
     lc_scene = luxcore::Scene::Create();
 
-    lc_scene->Parse(
-				luxrays::Property("scene.camera.lookat.orig")(1.f , 6.f , 3.f) <<
-				luxrays::Property("scene.camera.lookat.target")(0.f , 0.f , .5f) <<
-				luxrays::Property("scene.camera.fieldofview")(60.f));
+    // Initialize reqiured default camera location coordinates
+    lc_scene->Parse(luxrays::Properties() <<
+                luxrays::Property("scene.camera.type")("perspective") <<
+				luxrays::Property("scene.camera.lookat.orig")(0.f , 10.f , 0.f));
 
     //Luxcore requires at least one light source, so we are hardcoding one in until we
     //can parse them from USD directives
@@ -118,6 +118,16 @@ HdLuxCoreRenderDelegate::_Initialize()
         luxrays::Property("scene.lights.defaultsky.turbidity")(2.2f) <<
         luxrays::Property("scene.lights.defaultsky.gain")(0.8f, 0.8f, 0.8f)
     );
+
+    // TODO: define actual materials elsewhere
+    lc_scene->Parse(
+        luxrays::Property("scene.materials.whitelight.type")("matte") <<
+        luxrays::Property("scene.materials.whitelight.emission")(1000000.f, 1000000.f, 1000000.f) <<
+        luxrays::Property("scene.materials.mat_red.type")("matte") <<
+        luxrays::Property("scene.materials.mat_red.kd")(0.75f, 0.f, 0.f) <<
+        luxrays::Property("scene.materials.mat_gold.type")("metal2") <<
+        luxrays::Property("scene.materials.mat_gold.preset")("gold")
+	);
 
     lc_config = luxcore::RenderConfig::Create(
         luxrays::Property("renderengine.type")("PATHCPU") <<
@@ -129,12 +139,12 @@ HdLuxCoreRenderDelegate::_Initialize()
 
     lc_session->Start();
 
-    // Store top-level embree objects inside a render param that can be
+    // Store top-level objects inside a render param that can be
     // passed to prims during Sync(). Also pass a handle to the render thread.
     _renderParam = std::make_shared<HdLuxCoreRenderParam>(
         lc_scene, lc_config, lc_session, &_sceneVersion);
 
-    // Initialize one resource registry for all embree plugins
+    // Initialize one resource registry for all plugins
     std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
 
     if (_counterResourceRegistry.fetch_add(1) == 0) {
@@ -268,7 +278,7 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
 {
     cout << "HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)\n";
     if (typeId == HdPrimTypeTokens->mesh) {
-        // TODO: add mesh  return new HdLuxCoreMesh(rprimId, instancerId);
+        return new HdLuxCoreMesh(rprimId, instancerId);
     } else {
         TF_CODING_ERROR("Unknown Rprim Type %s", typeId.GetText());
     }

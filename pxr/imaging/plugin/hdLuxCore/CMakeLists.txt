@@ -52,6 +52,7 @@ pxr_plugin(hdLuxCore
         renderPass
         renderer
         renderBuffer
+        mesh
 
     PUBLIC_HEADERS
         renderParam.h

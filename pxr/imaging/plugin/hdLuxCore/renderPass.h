@@ -113,6 +113,9 @@ private:
     // The projection matrix: camera space to NDC space
     GfMatrix4d _projMatrix;
 
+    GfMatrix4d _inverseViewMatrix;
+    GfMatrix4d _inverseProjectionMatrix;
+
     // The list of aov buffers this renderpass should write to.
     HdRenderPassAovBindingVector _aovBindings;
 
