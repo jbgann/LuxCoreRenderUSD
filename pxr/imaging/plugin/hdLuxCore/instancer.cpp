@@ -77,6 +77,7 @@ HdLuxCoreInstancer::_SyncPrimvars()
 
     HdChangeTracker &changeTracker = 
         GetDelegate()->GetRenderIndex().GetChangeTracker();
+
     SdfPath const& id = GetId();
 
     // Use the double-checked locking pattern to check if this instancer's
@@ -129,7 +130,6 @@ HdLuxCoreInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)
     //     scale(index) * instanceTransform(index)
     // }
     // If any transform isn't provided, it's assumed to be the identity.
-
     GfMatrix4d instancerTransform =
         GetDelegate()->GetInstancerTransform(GetId());
     VtIntArray instanceIndices =
