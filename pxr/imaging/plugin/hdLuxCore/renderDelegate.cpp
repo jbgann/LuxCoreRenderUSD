@@ -124,7 +124,7 @@ HdLuxCoreRenderDelegate::_Initialize()
         luxrays::Property("scene.materials.whitelight.type")("matte") <<
         luxrays::Property("scene.materials.whitelight.emission")(1000000.f, 1000000.f, 1000000.f) <<
         luxrays::Property("scene.materials.mat_red.type")("matte") <<
-        luxrays::Property("scene.materials.mat_red.kd")(0.75f, 0.f, 0.f) <<
+        luxrays::Property("scene.materials.mat_red.kd")(1.f, 1.f, 1.f) <<
         luxrays::Property("scene.materials.mat_gold.type")("metal2") <<
         luxrays::Property("scene.materials.mat_gold.preset")("gold")
 	);
