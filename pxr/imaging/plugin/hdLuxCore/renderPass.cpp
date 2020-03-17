@@ -133,16 +133,21 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         direction = _inverseViewMatrix.TransformDir(direction).GetNormalized();
         up = _inverseViewMatrix.TransformDir(up).GetNormalized();
         origin = _inverseViewMatrix.Transform(origin);
+        
+        cout << "_inverseViewMatrix: " << _inverseViewMatrix << "\n" << std::flush;
 
         // Stopping the session allows the camera to be reset
         lc_session->Stop();
         lc_scene->Parse(luxrays::Properties() <<
             luxrays::Property("scene.camera.type")("perspective") <<
-            luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
+            luxrays::Property("scene.camera.lookat.orig")(origin[0], 10, origin[2]) <<
             luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
             luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
             luxrays::Property("scene.camera.fieldofview")(fieldOfView)
             );
+        cout << "Camera Origin: " << origin << std::flush;
+        cout << "Camera Direction: " << direction << std::flush;
+        cout << "Camera Up: " << up << std::flush;
         lc_session->Start();
     }
 

@@ -166,7 +166,6 @@ HdLuxCoreMesh::_CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
     unsigned int *triangle_indicies = (unsigned int *)Scene::AllocTrianglesBuffer(_triangulatedIndices.size());
     triangle_indicies = (unsigned int *)_triangulatedIndices.cdata();
 
-    // todo: rescale camera so we don't have to x 100 these
     // also cast these as above
     float *verticies = (float *)Scene::AllocVerticesBuffer(_points.size());
     for (int i = 0; i < _points.size(); i++) {
@@ -175,6 +174,9 @@ HdLuxCoreMesh::_CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
         verticies[i*3+2] = _points[i][2];
     }
 
+    cout << "Mesh points: " << _points << "\n" << std::flush;
+
+    // Create the Mesh prototype in LuxCore
     lc_session->Pause();
     lc_session->BeginSceneEdit();
     lc_scene->DefineMesh(id.GetString(), _points.size(), _triangulatedIndices.size(), verticies, triangle_indicies,  NULL, NULL, NULL, NULL);
@@ -316,7 +318,12 @@ HdLuxCoreMesh::_PopulateLuxCoreMesh(HdRenderParam* renderParam,
     }
 
     if (HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
-        _transform = GfMatrix4f(sceneDelegate->GetTransform(id));
+        cout << "HdChangeTracker::IsTransformDirty: True" << std::flush;
+        _transform = GfMatrix4f(0.1,0.f,0.f, 0.f, 0.f,0.1,0.f, 0.f, 0.f,0.f,0.1f, 0.f, 0.f, 0.f, 0.f, 1.f);
+        cout << "_transform: " << _transform << "\n" << std::flush;
+        //_transform = GfMatrix4f(sceneDelegate->GetTransform(id));
+        cout << "_transform: " << _transform << "\n" << std::flush;
+        cout << "_transform data: " << _transform.data() << "\n" << std::flush;
     }
 
     if (HdChangeTracker::IsVisibilityDirty(*dirtyBits, id)) {
@@ -487,12 +494,18 @@ HdLuxCoreMesh::_PopulateLuxCoreMesh(HdRenderParam* renderParam,
                 //_GetInstanceContext(scene, i)->objectToWorldMatrix = matf;
             }
         } else {
-            // TODO: Lets not make the first instance special
             std::string instanceName = id.GetString();
+            float trans[16] = {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+            lc_scene->SetMeshAppliedTransformation(instanceName, trans);
+            lc_scene->UpdateObjectTransformation(instanceName, trans);
+            // TODO: Lets not make the first instance special
+            
             lc_scene->Parse(
                 luxrays::Property("scene.objects." + instanceName + ".shape")(id.GetString()) <<
                 luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
             );
+            //lc_scene->SetMeshAppliedTransformation(instanceName, _transform.data());
+            
         }
 
         lc_session->EndSceneEdit();
