@@ -116,6 +116,12 @@ public:
     ///                      embree state.
     virtual void Finalize(HdRenderParam *renderParam) override;
 
+    bool CreateLuxCoreTriangleMesh(HdRenderParam *renderParam);
+
+    virtual VtMatrix4dArray GetTransforms() const {
+        return _transforms;
+    }
+
 protected:
     // Initialize the given representation of this Rprim.
     // This is called prior to syncing the prim, the first time the repr
@@ -145,14 +151,6 @@ protected:
     virtual HdDirtyBits _PropagateDirtyBits(HdDirtyBits bits) const override;
 
 private:
-    // Populate the LuxCore geometry object based on scene data.
-    void _PopulateLuxCoreMesh(HdRenderParam *renderParam,
-                         HdSceneDelegate *sceneDelegate,
-                         HdDirtyBits *dirtyBits,
-                         HdMeshReprDesc const &desc);
-
-    void _CreateLuxCoreTriangleMesh(HdRenderParam *renderParam);
-
     // Populate _primvarSourceMap (our local cache of primvar data) based on
     // authored scene data.
     // Primvars will be turned into samplers in _PopulateRtMesh,
@@ -181,10 +179,6 @@ private:
     // Cached scene data. VtArrays are reference counted, so as long as we
     // only call const accessors keeping them around doesn't incur a buffer
     // copy.
-    HdMeshTopology _topology;
-    GfMatrix4f _transform;
-    VtVec3fArray _points;
-
     // Derived scene data:
     // - _triangulatedIndices holds a triangulation of the source topology,
     //   which can have faces of arbitrary arity.
@@ -192,7 +186,7 @@ private:
     //   the triangulated topology) to authored face index.
     // - _computedNormals holds per-vertex normals computed as an average of
     //   adjacent face normals.
-    VtVec3iArray _triangulatedIndices;
+
     VtIntArray _trianglePrimitiveParams;
     VtVec3fArray _computedNormals;
 
@@ -221,11 +215,16 @@ private:
     };
     TfHashMap<TfToken, PrimvarSource, TfToken::HashFunctor> _primvarSourceMap;
 
-    // An object used to manage allocation of embree user vertex buffers to
-    // primvars.
-   // HdEmbreeRTCBufferAllocator _embreeBufferAllocator;
+    size_t _total_instances;
 
-   size_t _total_instances;
+    HdDirtyBits *_dirtyBits;
+    HdMeshReprDesc _desc;
+    HdSceneDelegate *_sceneDelegate;
+    VtMatrix4dArray _transforms;
+    VtVec3fArray _points;
+    VtVec3iArray _triangulatedIndices;
+    HdMeshTopology _topology;
+    GfMatrix4f _transform;
 
     // This class does not support copying.
     HdLuxCoreMesh(const HdLuxCoreMesh&)             = delete;

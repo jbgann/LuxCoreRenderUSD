@@ -137,8 +137,6 @@ HdLuxCoreRenderDelegate::_Initialize()
 
     lc_session = luxcore::RenderSession::Create(lc_config);
 
-    lc_session->Start();
-
     // Store top-level objects inside a render param that can be
     // passed to prims during Sync(). Also pass a handle to the render thread.
     _renderParam = std::make_shared<HdLuxCoreRenderParam>(
@@ -278,7 +276,9 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
 {
     cout << "HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)\n";
     if (typeId == HdPrimTypeTokens->mesh) {
-        return new HdLuxCoreMesh(rprimId, instancerId);
+        HdLuxCoreMesh *mesh = new HdLuxCoreMesh(rprimId, instancerId);
+        _rprimMap[rprimId.GetString()] = mesh;
+        return mesh;
     } else {
         TF_CODING_ERROR("Unknown Rprim Type %s", typeId.GetText());
     }

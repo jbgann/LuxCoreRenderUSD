@@ -92,6 +92,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     cout << "HdLuxCoreRenderPass::_Execute()\n";
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
+    HdLuxCoreRenderDelegate *renderDelegateLux = reinterpret_cast<HdLuxCoreRenderDelegate*>(renderDelegate);
     HdRenderParam *renderParam = renderDelegate->GetRenderParam();
     Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
 
@@ -134,6 +135,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         up = _inverseViewMatrix.TransformDir(up).GetNormalized();
         origin = _inverseViewMatrix.Transform(origin);
 
+        cout << "scene.camera.lookat.orig: " << origin[0] << " " << origin[1] << " " << origin[2] << "\n" << std::flush;
         // Stopping the session allows the camera to be reset
         lc_session->Stop();
         lc_scene->Parse(luxrays::Properties() <<
@@ -145,6 +147,34 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             );
         lc_session->Start();
     }
+
+    lc_session->Pause();
+    lc_session->BeginSceneEdit();
+
+    // Create the LuxCore Mesh Prototype
+    TfHashMap<std::string, HdLuxCoreMesh*> meshMap = renderDelegateLux->_rprimMap;
+    TfHashMap<std::string, HdLuxCoreMesh*>::iterator iter;
+
+    // Instantiate LuxCore mesh instances
+    for (iter = meshMap.begin(); iter != meshMap.end(); ++iter) {
+        HdLuxCoreMesh *mesh = iter->second;
+        if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
+            if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
+                // Always instantiate at least one mesh instance for each mesh prototype
+                for (size_t i = 0; i <= mesh->GetTransforms().size(); i++)
+                {
+                    std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
+                    lc_scene->Parse(
+                        luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
+                        luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
+                    );
+                }
+            }
+        }
+    }
+
+    lc_session->EndSceneEdit();
+    lc_session->Resume();
 
     // Copy the LuxCore film render into a buffer
     unique_ptr<float[]> pxl_buffer(new float[_width * _height * 3]);

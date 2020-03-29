@@ -143,19 +143,39 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     // For now, HdLuxCoreMesh only respects the first desc; this should be fixed.
     _MeshReprConfig::DescArray descs = _GetReprDesc(reprToken);
     const HdMeshReprDesc &desc = descs[0];
+    _dirtyBits = dirtyBits;
+    _desc = desc;
+    _sceneDelegate = sceneDelegate;
 
-    _PopulateLuxCoreMesh(renderParam, sceneDelegate, dirtyBits, desc);
+    HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
+    HdInstancer *instancer = renderIndex.GetInstancer(GetInstancerId());
+
+    if (!GetInstancerId().IsEmpty()) {
+            _transforms =
+            static_cast<HdLuxCoreInstancer*>(instancer)->
+                ComputeInstanceTransforms(GetId());
+    } else {
+        _transforms = VtMatrix4dArray();
+    }
+
+    VtValue value = sceneDelegate->Get(GetId(), HdTokens->points);
+    _points = value.Get<VtVec3fArray>();
+    _topology = HdMeshTopology(GetMeshTopology(sceneDelegate));
 }
 
-
-void
-HdLuxCoreMesh::_CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
+bool
+HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 {
+    cout << "_CreateLuxCoreTriangleMesh " << std::flush;
     Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
     RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
 
     // Used to name the type of mesh in LuxCore
     SdfPath const& id = GetId();
+
+    if (lc_scene->IsMeshDefined(id.GetString())) {
+        return false;
+    }
 
     // Triangulate the input faces.
     HdMeshUtil meshUtil(&_topology, GetId());
@@ -175,11 +195,12 @@ HdLuxCoreMesh::_CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
         verticies[i*3+2] = _points[i][2];
     }
 
-    lc_session->Pause();
-    lc_session->BeginSceneEdit();
+    cout << "Points: " << _points << std::flush;
+    cout << "Triangulated Indicies: " << _triangulatedIndices << std::flush;
+
     lc_scene->DefineMesh(id.GetString(), _points.size(), _triangulatedIndices.size(), verticies, triangle_indicies,  NULL, NULL, NULL, NULL);
-    lc_session->EndSceneEdit();
-    lc_session->Resume();
+
+    return true;
 }
 
 void
@@ -267,241 +288,5 @@ HdLuxCoreMesh::_UpdateComputedPrimvarSources(HdSceneDelegate* sceneDelegate,
     return compPrimvarNames;
 }
 
-void
-HdLuxCoreMesh::_PopulateLuxCoreMesh(HdRenderParam* renderParam,
-                              HdSceneDelegate* sceneDelegate,
-                              HdDirtyBits*     dirtyBits,
-                              HdMeshReprDesc const &desc)
-{
-    HD_TRACE_FUNCTION();
-    HF_MALLOC_TAG_FUNCTION();
-
-    SdfPath const& id = GetId();
-    Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
-    RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
-
-    ////////////////////////////////////////////////////////////////////////
-    // 1. Pull scene data.
-    TfTokenVector computedPrimvars =
-        _UpdateComputedPrimvarSources(sceneDelegate, *dirtyBits);
-
-    bool pointsIsComputed =
-        std::find(computedPrimvars.begin(), computedPrimvars.end(),
-                  HdTokens->points) != computedPrimvars.end();
-    if (!pointsIsComputed &&
-        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->points)) {
-        VtValue value = sceneDelegate->Get(id, HdTokens->points);
-        _points = value.Get<VtVec3fArray>();
-        _normalsValid = false;
-    }
-
-    if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id)) {
-        // When pulling a new topology, we don't want to overwrite the
-        // refine level or subdiv tags, which are provided separately by the
-        // scene delegate, so we save and restore them.
-        PxOsdSubdivTags subdivTags = _topology.GetSubdivTags();
-        int refineLevel = _topology.GetRefineLevel();
-        _topology = HdMeshTopology(GetMeshTopology(sceneDelegate), refineLevel);
-        _topology.SetSubdivTags(subdivTags);
-        _adjacencyValid = false;
-    }
-    if (HdChangeTracker::IsSubdivTagsDirty(*dirtyBits, id) &&
-        _topology.GetRefineLevel() > 0) {
-        _topology.SetSubdivTags(sceneDelegate->GetSubdivTags(id));
-    }
-    if (HdChangeTracker::IsDisplayStyleDirty(*dirtyBits, id)) {
-        HdDisplayStyle const displayStyle = sceneDelegate->GetDisplayStyle(id);
-        _topology = HdMeshTopology(_topology,
-            displayStyle.refineLevel);
-    }
-
-    if (HdChangeTracker::IsTransformDirty(*dirtyBits, id)) {
-        _transform = GfMatrix4f(sceneDelegate->GetTransform(id));
-    }
-
-    if (HdChangeTracker::IsVisibilityDirty(*dirtyBits, id)) {
-        _UpdateVisibility(sceneDelegate, dirtyBits);
-    }
-
-    if (HdChangeTracker::IsCullStyleDirty(*dirtyBits, id)) {
-        _cullStyle = GetCullStyle(sceneDelegate);
-    }
-    if (HdChangeTracker::IsDoubleSidedDirty(*dirtyBits, id)) {
-        _doubleSided = IsDoubleSided(sceneDelegate);
-    }
-    if (HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->normals) ||
-        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->widths) ||
-        HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, HdTokens->primvar)) {
-        _UpdatePrimvarSources(sceneDelegate, *dirtyBits);
-    }
-
-    ////////////////////////////////////////////////////////////////////////
-    // 2. Resolve drawstyles
-
-    // The repr defines a set of geometry styles for drawing the mesh
-    // (see hd/enums.h). We're ignoring points and wireframe for now, so
-    // HdMeshGeomStyleSurf maps to subdivs and everything else maps to
-    // HdMeshGeomStyleHull (coarse triangulated mesh).
-    bool doRefine = (desc.geomStyle == HdMeshGeomStyleSurf);
-
-    // If the subdivision scheme is "none", force us to not refine.
-    doRefine = doRefine && (_topology.GetScheme() != PxOsdOpenSubdivTokens->none);
-
-    // If the refine level is 0, triangulate instead of subdividing.
-    doRefine = doRefine && (_topology.GetRefineLevel() > 0);
-
-    // The repr defines whether we should compute smooth normals for this mesh:
-    // per-vertex normals taken as an average of adjacent faces, and
-    // interpolated smoothly across faces.
-    _smoothNormals = !desc.flatShadingEnabled;
-
-    // If the subdivision scheme is "none" or "bilinear", force us not to use
-    // smooth normals.
-    _smoothNormals = _smoothNormals &&
-        (_topology.GetScheme() != PxOsdOpenSubdivTokens->none) &&
-        (_topology.GetScheme() != PxOsdOpenSubdivTokens->bilinear);
-
-    // If the scene delegate has provided authored normals, force us to not use
-    // smooth normals.
-    bool authoredNormals = false;
-    if (_primvarSourceMap.count(HdTokens->normals) > 0) {
-        authoredNormals = true;
-    }
-    _smoothNormals = _smoothNormals && !authoredNormals;
-
-    ////////////////////////////////////////////////////////////////////////
-    // 3. Populate LuxCore prototype object.
-
-    // If the topology has changed, or the value of doRefine has changed, we
-    // need to create or recreate the embree mesh object.
-    // _GetInitialDirtyBits() ensures that the topology is dirty the first time
-    // this function is called, so that the embree mesh is always created.
-    bool newMesh = false;
-    if (HdChangeTracker::IsTopologyDirty(*dirtyBits, id) ||
-        doRefine != _refined) {
-
-        newMesh = true;
-
-        // Destroy the old mesh, if it exists.
-        //if (_rtcMeshScene != nullptr &&
-        //    _rtcMeshId != RTC_INVALID_GEOMETRY_ID) {
-                // Kate: We should delete LuxCore prototype context here
-            // Delete the prototype context first...
-            /*
-            TF_FOR_ALL(it, _GetPrototypeContext()->primvarMap) {
-                delete it->second;
-            }
-            delete _GetPrototypeContext();
-            // then the prototype geometry.
-            rtcDeleteGeometry(_rtcMeshScene, _rtcMeshId);
-            _rtcMeshId = RTC_INVALID_GEOMETRY_ID;
-            */
-        //}
-
-        // Populate either a subdiv or a triangle mesh object. The helper
-        // functions will take care of populating topology buffers.
-        if (doRefine) {
-            // Probably need LuxCore 2.3 to create a subdiv...
-            //_CreateEmbreeSubdivMesh(_rtcMeshScene);
-        } else {
-            _CreateLuxCoreTriangleMesh(renderParam);
-        }
-        _refined = doRefine;
-
-        _normalsValid = false;
-    }
-
-    // Update the smooth normals in steps:
-    // 1. If the topology is dirty, update the adjacency table, a processed
-    //    form of the topology that helps calculate smooth normals quickly.
-    // 2. If the points are dirty, update the smooth normal buffer itself.
-    if (_smoothNormals && !_adjacencyValid) {
-        _adjacency.BuildAdjacencyTable(&_topology);
-        _adjacencyValid = true;
-        // If we rebuilt the adjacency table, force a rebuild of normals.
-        _normalsValid = false;
-    }
-    if (_smoothNormals && !_normalsValid) {
-        _computedNormals = Hd_SmoothNormals::ComputeSmoothNormals(
-            &_adjacency, _points.size(), _points.cdata());
-        _normalsValid = true;
-
-        // Create a sampler for the "normals" primvar. If there are authored
-        // normals, the smooth normals flag has been suppressed, so it won't
-        // be overwritten by the primvar population below.
-        //_CreatePrimvarSampler(HdTokens->normals, VtValue(_computedNormals),
-        //    HdInterpolationVertex, _refined);
-    }
-
-    // Populate primvars if they've changed or we recreated the mesh.
-    TF_FOR_ALL(it, _primvarSourceMap) {
-        if (newMesh ||
-            HdChangeTracker::IsPrimvarDirty(*dirtyBits, id, it->first)) {
-            //_CreatePrimvarSampler(it->first, it->second.data,
-            //        it->second.interpolation, _refined);
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////
-    // 4. Populate LuxCore instance objects.
-
-    // If the mesh is instanced, create one new instance per transform.
-    // Note: The current instancer invalidation tracking makes it hard
-    // to tell whether transforms will be dirty, so this code
-    // pulls them every frame.
-
-        cout << "GetInstancerId().GetString(): " << GetInstancerId().GetString();
-
-        // Retrieve instance transforms from the instancer.
-        HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
-        HdInstancer *instancer =
-            renderIndex.GetInstancer(GetInstancerId());
-        VtMatrix4dArray transforms = VtMatrix4dArray();
-
-        lc_session->Pause();
-        lc_session->BeginSceneEdit();
-
-        // If we have instances get their transforms
-        if (!GetInstancerId().IsEmpty()) {
-            transforms =
-            static_cast<HdLuxCoreInstancer*>(instancer)->
-                ComputeInstanceTransforms(GetId());
-            cout << "first branch" << std::flush;
-            // Clear old instances from LuxCore
-            for (size_t i = 0; i < _total_instances; i++)
-            {
-                std::string instanceName = id.GetString() + std::to_string(i);
-                lc_scene->DeleteObject(instanceName);
-            }
-
-            for (size_t i = 0; i < transforms.size(); i++)
-            {
-                std::string instanceName = id.GetString() + std::to_string(i);
-                lc_scene->Parse(
-                    luxrays::Property("scene.objects." + instanceName + ".shape")(id.GetString()) <<
-                    luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
-                );
-
-                // TODO: Manipulate the tranforms
-                //GfMatrix4f matf = _transform * GfMatrix4f(transforms[i]);
-                //_GetInstanceContext(scene, i)->objectToWorldMatrix = matf;
-            }
-        } else {
-            // TODO: Lets not make the first instance special
-            std::string instanceName = id.GetString();
-            lc_scene->Parse(
-                luxrays::Property("scene.objects." + instanceName + ".shape")(id.GetString()) <<
-                luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
-            );
-        }
-
-        lc_session->EndSceneEdit();
-        lc_session->Resume();
-
-        _total_instances = transforms.size();
-
-    // Clean all dirty bits.
-    *dirtyBits &= ~HdChangeTracker::AllSceneDirtyBits;
-}
 
 PXR_NAMESPACE_CLOSE_SCOPE
