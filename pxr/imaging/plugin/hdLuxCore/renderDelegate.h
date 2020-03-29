@@ -230,6 +230,8 @@ public:
     virtual HdAovDescriptor
         GetDefaultAovDescriptor(TfToken const& name) const override;
 
+    // A map of rprims
+    TfHashMap<std::string, HdLuxCoreMesh*> _rprimMap;
 private:
     static const TfTokenVector SUPPORTED_RPRIM_TYPES;
     static const TfTokenVector SUPPORTED_SPRIM_TYPES;
