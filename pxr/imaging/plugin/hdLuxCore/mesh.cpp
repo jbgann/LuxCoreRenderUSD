@@ -135,6 +135,8 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
 
+    logit("HdLuxCoreMesh::Sync");
+
     // XXX: A mesh repr can have multiple repr decs; this is done, for example,
     // when the drawstyle specifies different rasterizing modes between front
     // faces and back faces.
@@ -151,11 +153,11 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     HdInstancer *instancer = renderIndex.GetInstancer(GetInstancerId());
 
     if (!GetInstancerId().IsEmpty()) {
-            _transforms =
-            static_cast<HdLuxCoreInstancer*>(instancer)->
-                ComputeInstanceTransforms(GetId());
+        //_transforms = static_cast<HdLuxCoreInstancer*>(instancer)->ComputeInstanceTransforms(GetId()); 
     } else {
-        _transforms = VtMatrix4dArray();
+        GfMatrix4d *transform = new GfMatrix4d(sceneDelegate->GetTransform(GetId()));
+        //_transforms = VtMatrix4dArray();
+        _transforms.push_back(transform);
     }
 
     VtValue value = sceneDelegate->Get(GetId(), HdTokens->points);
@@ -286,6 +288,21 @@ HdLuxCoreMesh::_UpdateComputedPrimvarSources(HdSceneDelegate* sceneDelegate,
     }
 
     return compPrimvarNames;
+}
+
+bool
+HdLuxCoreMesh::IsValidTransform(GfMatrix4f m)
+{
+    float *items = m.GetArray();
+
+    for (int i = 0; i < 16; i++) {
+        if (isinf(items[i]))
+            return false;
+        if (items[i] == -0)
+            return false;
+    }
+
+    return true;
 }
 
 

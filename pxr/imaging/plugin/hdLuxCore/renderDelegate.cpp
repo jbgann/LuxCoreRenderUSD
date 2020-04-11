@@ -39,6 +39,8 @@
 //XXX: Add bprim types
 
 #include <iostream>
+#include <chrono>
+#include <ctime>
 using namespace std;
 
 PXR_NAMESPACE_OPEN_SCOPE
@@ -367,3 +369,13 @@ HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
+
+
+
+int logit(std::string message)
+{
+    auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now()); 
+    cout << "LOG: " << ctime(&timenow) << " Thread: " << std::this_thread::get_id() << message << endl;
+
+    return 0;
+}

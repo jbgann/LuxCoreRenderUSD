@@ -33,6 +33,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
+typedef std::vector<GfMatrix4d *> TfMatrix4dVector;
 
 /// \class HdLuxCoreMesh
 ///
@@ -59,6 +60,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 /// embree scene), so that object population and existence aren't tied to
 /// each other.
 ///
+
 class HdLuxCoreMesh final : public HdMesh {
 public:
     HF_MALLOC_TAG_NEW("new HdLuxCoreMesh");
@@ -117,10 +119,13 @@ public:
     virtual void Finalize(HdRenderParam *renderParam) override;
 
     bool CreateLuxCoreTriangleMesh(HdRenderParam *renderParam);
-
-    virtual VtMatrix4dArray GetTransforms() const {
+    
+    virtual TfMatrix4dVector GetTransforms() const {
         return _transforms;
     }
+
+    bool HdLuxCoreMesh::IsValidTransform(GfMatrix4f m);
+    
 
 protected:
     // Initialize the given representation of this Rprim.
@@ -220,11 +225,14 @@ private:
     HdDirtyBits *_dirtyBits;
     HdMeshReprDesc _desc;
     HdSceneDelegate *_sceneDelegate;
-    VtMatrix4dArray _transforms;
+    //VtMatrix4dArray _transforms;
+    TfMatrix4dVector _transforms;
+    
+
     VtVec3fArray _points;
     VtVec3iArray _triangulatedIndices;
     HdMeshTopology _topology;
-    GfMatrix4f _transform;
+    GfMatrix4d _transform;
 
     // This class does not support copying.
     HdLuxCoreMesh(const HdLuxCoreMesh&)             = delete;

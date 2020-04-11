@@ -88,8 +88,10 @@ HdLuxCoreRenderPass::IsConverged() const
 void
 HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
-{
-    cout << "HdLuxCoreRenderPass::_Execute()\n";
+{/*
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(static_cast<size_t>(1*1000))); */
+    logit("HdLuxCoreRenderPass::_Execute()");
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdLuxCoreRenderDelegate *renderDelegateLux = reinterpret_cast<HdLuxCoreRenderDelegate*>(renderDelegate);
@@ -140,7 +142,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         lc_session->Stop();
         lc_scene->Parse(luxrays::Properties() <<
             luxrays::Property("scene.camera.type")("perspective") <<
-            luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
+            luxrays::Property("scene.camera.lookat.orig")(origin[0], 5.0f, origin[2]) <<
             luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
             luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
             luxrays::Property("scene.camera.fieldofview")(fieldOfView)
@@ -158,16 +160,29 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Instantiate LuxCore mesh instances
     for (iter = meshMap.begin(); iter != meshMap.end(); ++iter) {
         HdLuxCoreMesh *mesh = iter->second;
+
         if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
             if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
+                TfMatrix4dVector transforms = mesh->GetTransforms();
                 // Always instantiate at least one mesh instance for each mesh prototype
-                for (size_t i = 0; i <= mesh->GetTransforms().size(); i++)
+                for (size_t i = 0; i <= transforms.size(); i++)
                 {
                     std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
                     lc_scene->Parse(
                         luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
                         luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
                     );
+
+                    if (transforms.size() > 0 && transforms.size() <= i) {
+                        GfMatrix4d *t = transforms[i];
+                        GfMatrix4f m = GfMatrix4f(*t);
+                        
+                        // If the transform isn't valid for LuxCore, replace it with the identity Matrix
+                        if (!mesh->IsValidTransform(m)) {
+                            m = GfMatrix4f(1.0);
+                        }
+                        lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
+                    }
                 }
             }
         }

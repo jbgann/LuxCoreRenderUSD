@@ -34,6 +34,9 @@
 #include <luxcore/luxcore.h>
 #include <mutex>
 
+
+int logit(std::string message);
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 class HdLuxCoreRenderParam;
