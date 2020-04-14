@@ -88,8 +88,10 @@ HdLuxCoreRenderPass::IsConverged() const
 void
 HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
-{
-    cout << "HdLuxCoreRenderPass::_Execute()\n";
+{/*
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(static_cast<size_t>(1*1000))); */
+    logit("HdLuxCoreRenderPass::_Execute()");
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdLuxCoreRenderDelegate *renderDelegateLux = reinterpret_cast<HdLuxCoreRenderDelegate*>(renderDelegate);
@@ -158,16 +160,21 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Instantiate LuxCore mesh instances
     for (iter = meshMap.begin(); iter != meshMap.end(); ++iter) {
         HdLuxCoreMesh *mesh = iter->second;
+
         if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
             if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
-                // Always instantiate at least one mesh instance for each mesh prototype
-                for (size_t i = 0; i <= mesh->GetTransforms().size(); i++)
+                TfMatrix4dVector transforms = mesh->GetTransforms();
+                // We can assume that there will always be one transform per mesh prototype
+                for (size_t i = 0; i < transforms.size(); i++)
                 {
                     std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
                     lc_scene->Parse(
                         luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
                         luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
                     );
+                    GfMatrix4d *t = transforms[i];
+                    GfMatrix4f m = GfMatrix4f(*t);
+                    lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
                 }
             }
         }
