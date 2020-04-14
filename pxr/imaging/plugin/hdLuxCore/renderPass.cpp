@@ -142,7 +142,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         lc_session->Stop();
         lc_scene->Parse(luxrays::Properties() <<
             luxrays::Property("scene.camera.type")("perspective") <<
-            luxrays::Property("scene.camera.lookat.orig")(origin[0], 5.0f, origin[2]) <<
+            luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
             luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
             luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
             luxrays::Property("scene.camera.fieldofview")(fieldOfView)
