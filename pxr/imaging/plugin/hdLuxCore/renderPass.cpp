@@ -164,25 +164,17 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
             if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
                 TfMatrix4dVector transforms = mesh->GetTransforms();
-                // Always instantiate at least one mesh instance for each mesh prototype
-                for (size_t i = 0; i <= transforms.size(); i++)
+                // We can assume that there will always be one transform per mesh prototype
+                for (size_t i = 0; i < transforms.size(); i++)
                 {
                     std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
                     lc_scene->Parse(
                         luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
                         luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
                     );
-
-                    if (transforms.size() > 0 && transforms.size() <= i) {
-                        GfMatrix4d *t = transforms[i];
-                        GfMatrix4f m = GfMatrix4f(*t);
-                        
-                        // If the transform isn't valid for LuxCore, replace it with the identity Matrix
-                        if (!mesh->IsValidTransform(m)) {
-                            m = GfMatrix4f(1.0);
-                        }
-                        lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
-                    }
+                    GfMatrix4d *t = transforms[i];
+                    GfMatrix4f m = GfMatrix4f(*t);
+                    lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
                 }
             }
         }

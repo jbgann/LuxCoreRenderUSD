@@ -197,8 +197,8 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
         verticies[i*3+2] = _points[i][2];
     }
 
-    cout << "Points: " << _points << std::flush;
-    cout << "Triangulated Indicies: " << _triangulatedIndices << std::flush;
+    //cout << "Points: " << _points << std::flush;
+    //cout << "Triangulated Indicies: " << _triangulatedIndices << std::flush;
 
     lc_scene->DefineMesh(id.GetString(), _points.size(), _triangulatedIndices.size(), verticies, triangle_indicies,  NULL, NULL, NULL, NULL);
 
