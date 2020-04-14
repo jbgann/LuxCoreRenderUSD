@@ -9,24 +9,30 @@
     upAxis = "Y"
 )
 
+def Xform "grid1" (
+    kind = "component"
+)
+{
+    matrix4d xformOp:transform:xform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform:xform"]
+
+    def Mesh "mesh_0"
+    {
+        float3[] extent = [(-1.5, 0, -1.5), (1.5, 0, 1.5)]
+        int[] faceVertexCounts = [4, 4, 4, 4]
+        int[] faceVertexIndices = [0, 1, 4, 3, 1, 2, 5, 4, 3, 4, 7, 6, 4, 5, 8, 7]
+        uniform token orientation = "leftHanded"
+        point3f[] points = [(-1.5, 0, -1.5), (0, 0, -1.5), (1.5, 0, -1.5), (-1.5, 0, 0), (0, 0, 0), (1.5, 0, 0), (-1.5, 0, 1.5), (0, 0, 1.5), (1.5, 0, 1.5)] (
+            interpolation = "vertex"
+        )
+        uniform token subdivisionScheme = "none"
+    }
+}
+
 def Sphere "sphere1"
 {
     double radius = 1
     matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 1.038795344531536, 0, 1) )
-    uniform token[] xformOpOrder = ["xformOp:transform", "xformOp:transform"]
-}
-
-def Sphere "sphere2"
-{
-    double radius = 1
-    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 2.038795344531536, 0, 1) )
-    uniform token[] xformOpOrder = ["xformOp:transform"]
-}
-
-def Sphere "sphere3"
-{
-    double radius = 1
-    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 3.038795344531536, 0, 1) )
     uniform token[] xformOpOrder = ["xformOp:transform"]
 }
 
