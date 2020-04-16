@@ -33,7 +33,7 @@ Prerequisites
 ## Current Status
 Currently the delegate will build against an existing USD installation and has all the necessary classes and methods to respond to the calls made by the hydra framework.  The delegate can render can currently render meshes and position the camera based on the USD scene description file.
 
-![luxcore_full_scene_render_2020_03_28](https://user-images.githubusercontent.com/14242682/77840438-51a58580-713c-11ea-8ecb-f6c73dca8854.png)
+![luxcore_full_scene_render_2020_04_15](readme_progress_screen_shot.png)
 
 ## Credits
 Thanks to Jereon Lapre of the California Academy of Sciences for the sample USDA file test/asset/geo_GridSphereLightCam.004.usd_scene.usda used for our rendering tests.
