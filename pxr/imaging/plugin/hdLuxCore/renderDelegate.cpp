@@ -32,6 +32,7 @@
 #include "pxr/imaging/hd/resourceRegistry.h"
 #include "pxr/imaging/hd/tokens.h"
 
+
 //XXX: Add other Rprim types later
 #include "pxr/imaging/hd/camera.h"
 //XXX: Add other Sprim types later
@@ -56,6 +57,7 @@ const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_SPRIM_TYPES =
 {
     HdPrimTypeTokens->camera,
     HdPrimTypeTokens->extComputation,
+    HdPrimTypeTokens->sphereLight
 };
 
 const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_BPRIM_TYPES =
@@ -115,10 +117,11 @@ HdLuxCoreRenderDelegate::_Initialize()
     //Luxcore requires at least one light source, so we are hardcoding one in until we
     //can parse them from USD directives
     lc_scene->Parse(
-        luxrays::Property("scene.lights.defaultsky.type")("sky2") <<
-        luxrays::Property("scene.lights.defaultsky.dir")(0.166974f, 0.59908f, 0.783085f) <<
-        luxrays::Property("scene.lights.defaultsky.turbidity")(2.2f) <<
-        luxrays::Property("scene.lights.defaultsky.gain")(0.8f, 0.8f, 0.8f)
+        luxrays::Property("scene.lights.light1.type")("sphere") <<
+        luxrays::Property("scene.lights.light1.color")(1.0, 0.0, 0.0) <<
+        luxrays::Property("scene.lights.light1.gain")(2.0, 2.0, 2.0) <<
+        luxrays::Property("scene.lights.light1.direction")(1.0, 1.0, -1.0) <<
+        luxrays::Property("scene.lights.light1.position")(1.55, 1.95, 0.66)
     );
 
     // TODO: define actual materials elsewhere
@@ -304,6 +307,8 @@ HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
         return new HdCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->extComputation) {
         return new HdExtComputation(sprimId);
+    } else if (typeId == HdPrimTypeTokens->sphereLight) {
+        return new HdLuxCoreLight(sprimId, typeId);
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }
@@ -321,6 +326,8 @@ HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
         return new HdCamera(SdfPath::EmptyPath());
     } else if (typeId == HdPrimTypeTokens->extComputation) {
         return new HdExtComputation(SdfPath::EmptyPath());
+    } else if (typeId == HdPrimTypeTokens->sphereLight) {
+        return new HdLuxCoreLight(SdfPath::EmptyPath(), typeId);
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }

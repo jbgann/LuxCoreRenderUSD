@@ -30,6 +30,7 @@
 #include "pxr/base/tf/staticTokens.h"
 #include "pxr/imaging/hdLuxCore/renderer.h"
 #include "pxr/imaging/hdLuxCore/mesh.h"
+#include "pxr/imaging/hdLuxCore/light.h"
 
 #include <luxcore/luxcore.h>
 #include <mutex>
