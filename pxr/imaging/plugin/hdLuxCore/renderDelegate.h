@@ -30,6 +30,7 @@
 #include "pxr/base/tf/staticTokens.h"
 #include "pxr/imaging/hdLuxCore/renderer.h"
 #include "pxr/imaging/hdLuxCore/mesh.h"
+#include "pxr/imaging/hdLuxCore/light.h"
 
 #include <luxcore/luxcore.h>
 #include <mutex>
@@ -235,6 +236,8 @@ public:
 
     // A map of rprims
     TfHashMap<std::string, HdLuxCoreMesh*> _rprimMap;
+    // A map of sprim Lights
+    TfHashMap<std::string, HdLuxCoreLight*> _sprimLightMap;
 private:
     static const TfTokenVector SUPPORTED_RPRIM_TYPES;
     static const TfTokenVector SUPPORTED_SPRIM_TYPES;
