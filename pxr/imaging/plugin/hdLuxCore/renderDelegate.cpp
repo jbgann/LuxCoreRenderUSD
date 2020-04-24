@@ -118,8 +118,8 @@ HdLuxCoreRenderDelegate::_Initialize()
     //can parse them from USD directives
     lc_scene->Parse(
         luxrays::Property("scene.lights.light1.type")("sphere") <<
-        luxrays::Property("scene.lights.light1.color")(1.0, 0.0, 0.0) <<
-        luxrays::Property("scene.lights.light1.gain")(2.0, 2.0, 2.0) <<
+        luxrays::Property("scene.lights.light1.color")(0.0, 1.0, 0.0) <<
+        luxrays::Property("scene.lights.light1.gain")(0.0, 0.0, 0.0) <<
         luxrays::Property("scene.lights.light1.direction")(1.0, 1.0, -1.0) <<
         luxrays::Property("scene.lights.light1.position")(1.55, 1.95, 0.66)
     );
@@ -302,13 +302,15 @@ HdSprim *
 HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
                                     SdfPath const& sprimId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId)\n";
+    cout << "HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId) " << sprimId << "\n";
     if (typeId == HdPrimTypeTokens->camera) {
         return new HdCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->extComputation) {
         return new HdExtComputation(sprimId);
     } else if (typeId == HdPrimTypeTokens->sphereLight) {
-        return new HdLuxCoreLight(sprimId, typeId);
+        HdLuxCoreLight *light = new HdLuxCoreLight(sprimId, typeId);
+        _sprimLightMap[sprimId.GetString()] = light;
+        return light;
     } else {
         TF_CODING_ERROR("Unknown Sprim Type %s", typeId.GetText());
     }

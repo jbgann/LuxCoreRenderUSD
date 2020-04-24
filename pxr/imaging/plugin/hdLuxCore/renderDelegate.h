@@ -236,6 +236,8 @@ public:
 
     // A map of rprims
     TfHashMap<std::string, HdLuxCoreMesh*> _rprimMap;
+    // A map of sprim Lights
+    TfHashMap<std::string, HdLuxCoreLight*> _sprimLightMap;
 private:
     static const TfTokenVector SUPPORTED_RPRIM_TYPES;
     static const TfTokenVector SUPPORTED_SPRIM_TYPES;

@@ -180,6 +180,25 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         }
     }
 
+    // Render any lighting
+    TfHashMap<std::string, HdLuxCoreLight*> lightMap = renderDelegateLux->_sprimLightMap;
+    TfHashMap<std::string, HdLuxCoreLight*>::iterator l_iter;
+
+    for (l_iter = lightMap.begin(); l_iter != lightMap.end(); ++l_iter) {
+        HdLuxCoreLight *light = l_iter->second;
+        if (!light->GetCreated()) {
+            light->SetCreated(true);
+            GfMatrix4d transform = light->GetLightTransform();
+            std::string light_id = light->GetId().GetString();
+            GfVec3f color = light->GetColor();
+            lc_scene->Parse(
+                luxrays::Property("scene.lights." + light_id + ".type")("sphere") <<
+                luxrays::Property("scene.lights." + light_id + ".color")(color[0], color[1], color[2]) <<
+                luxrays::Property("scene.lights." + light_id + ".position")(transform[3][0], transform[3][1], transform[3][2])
+            );
+        }
+    }
+
     lc_session->EndSceneEdit();
     lc_session->Resume();
 
