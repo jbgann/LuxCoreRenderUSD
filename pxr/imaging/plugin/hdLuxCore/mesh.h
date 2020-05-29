@@ -233,6 +233,10 @@ private:
     VtVec3iArray _triangulatedIndices;
     HdMeshTopology _topology;
     GfMatrix4d _transform;
+	VtVec3fArray _normals;
+	VtVec3fArray _uvs;
+	int _refineLevel;
+
 
     // This class does not support copying.
     HdLuxCoreMesh(const HdLuxCoreMesh&)             = delete;

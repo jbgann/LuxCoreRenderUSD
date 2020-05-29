@@ -1,5 +1,5 @@
 //
-// Copyright 2017 Pixar and John Gann
+// Copyright 2017 Pixar, John Gann, LuxCore
 //
 // Licensed under the Apache License, Version 2.0 (the "Apache License")
 // with the following modification; you may not use this file except in
@@ -48,12 +48,40 @@
 #include "pxr/base/gf/matrix4d.h"
 #include "pxr/usd/sdf/identity.h"
 
+#if defined(_OPENMP)
+
+#include <omp.h>
+#include <opensubdiv/osd/ompEvaluator.h>
+#define OSD_EVALUATOR Osd::OmpEvaluator
+
+#else
+
+#include <opensubdiv/osd/cpuEvaluator.h>
+#define OSD_EVALUATOR Osd::CpuEvaluator
+
+#endif
+
+#include <opensubdiv/version.h>
+#include <opensubdiv/far/topologyDescriptor.h>
+#include <opensubdiv/far/patchMap.h>
+#include <opensubdiv/far/patchTable.h>
+#include <opensubdiv/far/patchTableFactory.h>
+#include <opensubdiv/far/stencilTableFactory.h>
+#include <opensubdiv/far/topologyRefinerFactory.h>
+#include <opensubdiv/osd/cpuPatchTable.h>
+#include <opensubdiv/osd/cpuEvaluator.h>
+#include <opensubdiv/osd/cpuVertexBuffer.h>
 
 #include <luxcore/luxcore.h>
+#include <luxrays/utils/utils.h>
 
 #include <algorithm> // sort
 
+
 PXR_NAMESPACE_OPEN_SCOPE
+
+using namespace OpenSubdiv;
+using namespace luxrays;
 
 HdLuxCoreMesh::HdLuxCoreMesh(SdfPath const& id,
                            SdfPath const& instancerId)
@@ -160,9 +188,38 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
         _transforms.push_back(transform);
     }
 
+	// Get the mesh complexity level for OpenSubdiv
+	HdDisplayStyle const displayStyle = GetDisplayStyle(sceneDelegate);
+	_refineLevel = displayStyle.refineLevel;
+
     VtValue value = sceneDelegate->Get(GetId(), HdTokens->points);
     _points = value.Get<VtVec3fArray>();
     _topology = HdMeshTopology(GetMeshTopology(sceneDelegate));
+
+	VtValue normals_value = sceneDelegate->Get(GetId(), HdTokens->normals);
+	_normals = normals_value.Get<VtVec3fArray>();
+
+}
+
+// The following block is adapted from the LuxCore rendering system
+template <unsigned int DIMENSIONS> static Osd::CpuVertexBuffer *BuildBuffer(
+	const Far::StencilTable *stencilTable, const float *data,
+	const unsigned int count, const unsigned int totalCount) {
+	Osd::CpuVertexBuffer *buffer = Osd::CpuVertexBuffer::Create(DIMENSIONS, totalCount);
+
+	Osd::BufferDescriptor desc(0, DIMENSIONS, DIMENSIONS);
+	Osd::BufferDescriptor newDesc(count * DIMENSIONS, DIMENSIONS, DIMENSIONS);
+
+	// Pack the control vertex data at the start of the vertex buffer
+	// and update every time control data changes
+	buffer->UpdateData(data, 0, count);
+
+	// Refine points (coarsePoints -> refinedPoints)
+	OSD_EVALUATOR::EvalStencils(buffer, desc,
+		buffer, newDesc,
+		stencilTable);
+
+	return buffer;
 }
 
 bool
@@ -183,6 +240,112 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
     HdMeshUtil meshUtil(&_topology, GetId());
     meshUtil.ComputeTriangleIndices(&_triangulatedIndices,
         &_trianglePrimitiveParams);
+
+	// TODO: See if we can use the mesh type
+	if (id.GetString().rfind("/sphere", 0) == 0 && _refineLevel > 0) {
+
+		// The following OpenSubdiv code is adapted from the LuxCore rendering system
+
+		// -- BEGIN OPEN SUBDIBV -- //
+
+		Far::TopologyDescriptor desc;
+		desc.numVertices = _points.size();
+		desc.numFaces = _triangulatedIndices.size();
+		vector<int> vertPerFace(desc.numFaces, 3);
+		desc.numVertsPerFace = &vertPerFace[0];
+		desc.vertIndicesPerFace = (const int *)_triangulatedIndices.cdata();
+
+		// Instantiate a Far::TopologyRefiner from the descriptor
+		Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Create(desc);
+
+		// Complexity
+		refiner->RefineUniform(Far::TopologyRefiner::UniformOptions(_refineLevel + 1));
+
+		Far::StencilTableFactory::Options stencilOptions;
+		stencilOptions.generateOffsets = true;
+		stencilOptions.generateIntermediateLevels = false;
+
+		const Far::StencilTable *stencilTable = Far::StencilTableFactory::Create(*refiner, stencilOptions);
+
+		Far::PatchTableFactory::Options patchOptions;
+		patchOptions.SetEndCapType(
+			Far::PatchTableFactory::Options::ENDCAP_BSPLINE_BASIS);
+
+		const Far::PatchTable *patchTable =
+			Far::PatchTableFactory::Create(*refiner, patchOptions);
+
+		// Append local point stencils
+		if (const Far::StencilTable *localPointStencilTable =
+			patchTable->GetLocalPointStencilTable()) {
+			if (const Far::StencilTable *combinedTable =
+				Far::StencilTableFactory::AppendLocalPointStencilTable(
+					*refiner, stencilTable, localPointStencilTable)) {
+				delete stencilTable;
+				stencilTable = combinedTable;
+			}
+		}
+
+		// Setup a buffer for vertex primvar data
+		const unsigned int vertsCount = refiner->GetLevel(0).GetNumVertices();
+		const unsigned int totalVertsCount = vertsCount + refiner->GetNumVerticesTotal();
+
+		// Vertices
+		Osd::CpuVertexBuffer *vertsBuffer = BuildBuffer<3>(
+			stencilTable, (const float *)_points.cdata(),
+			vertsCount, totalVertsCount);
+
+		// Normals
+		Osd::CpuVertexBuffer *normsBuffer = nullptr;
+		if (_normals.size() > 0) {
+			normsBuffer = BuildBuffer<3>(
+				stencilTable, (const float *)_normals.cdata(),
+				vertsCount, totalVertsCount);
+		}
+
+		// New triangles
+		unsigned int newTrisCount = 0;
+		for (int array = 0; array < patchTable->GetNumPatchArrays(); ++array)
+			for (int patch = 0; patch < patchTable->GetNumPatches(array); ++patch)
+				++newTrisCount;
+
+		VtVec3iArray newTris = VtVec3iArray(newTrisCount);
+
+		unsigned int triIndex = 0;
+		unsigned int maxVertIndex = 0;
+		for (int array = 0; array < patchTable->GetNumPatchArrays(); ++array) {
+			for (int patch = 0; patch < patchTable->GetNumPatches(array); ++patch) {
+				const Far::ConstIndexArray faceVerts =
+					patchTable->GetPatchVertices(array, patch);
+
+				assert(faceVerts.size() == 3);
+				newTris[triIndex][0] = faceVerts[0] - vertsCount;
+				newTris[triIndex][1] = faceVerts[1] - vertsCount;
+				newTris[triIndex][2] = faceVerts[2] - vertsCount;
+
+				maxVertIndex = Max((int)maxVertIndex, Max(newTris[triIndex][0], Max(newTris[triIndex][1], newTris[triIndex][2])));
+
+				++triIndex;
+			}
+		}
+
+		// I don't sincerely know how to get this obvious value out of OpenSubdiv
+		const u_int newVertsCount = maxVertIndex + 1;
+
+		// New vertices
+		VtVec3fArray newVerts = VtVec3fArray(newVertsCount);
+		const float *refinedVerts = vertsBuffer->BindCpuBuffer() + 3 * vertsCount;
+
+		for (unsigned int i = 0; i < newVertsCount; i++) {
+			newVerts[i][0] = refinedVerts[i * 3 + 0];
+			newVerts[i][1] = refinedVerts[i * 3 + 1];
+			newVerts[i][2] = refinedVerts[i * 3 + 2];
+		}
+
+		_triangulatedIndices = newTris;
+		_points = newVerts;
+
+		// -- END OPEN SUBDIBV -- //
+	}
 
     // Alloc a LuxCore triangle buffer and copy the USD mesh's triangle indicies into it
     unsigned int *triangle_indicies = (unsigned int *)Scene::AllocTrianglesBuffer(_triangulatedIndices.size());

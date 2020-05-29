@@ -118,7 +118,7 @@ HdLuxCoreRenderDelegate::_Initialize()
     //can parse them from USD directives
     lc_scene->Parse(
         luxrays::Property("scene.lights.light1.type")("sphere") <<
-        luxrays::Property("scene.lights.light1.color")(0.0, 1.0, 0.0) <<
+        luxrays::Property("scene.lights.light1.color")(0.0, 0.0, 0.0) <<
         luxrays::Property("scene.lights.light1.gain")(0.0, 0.0, 0.0) <<
         luxrays::Property("scene.lights.light1.direction")(1.0, 1.0, -1.0) <<
         luxrays::Property("scene.lights.light1.position")(1.55, 1.95, 0.66)
