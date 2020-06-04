@@ -248,6 +248,9 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 
 		// -- BEGIN OPEN SUBDIBV -- //
 
+		Sdc::Options options;
+		options.SetVtxBoundaryInterpolation(Sdc::Options::VTX_BOUNDARY_EDGE_AND_CORNER);
+
 		Far::TopologyDescriptor desc;
 		desc.numVertices = _points.size();
 		desc.numFaces = _triangulatedIndices.size();
@@ -255,8 +258,69 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 		desc.numVertsPerFace = &vertPerFace[0];
 		desc.vertIndicesPerFace = (const int *)_triangulatedIndices.cdata();
 
+		// Look for mesh boundary edges
+		unordered_map<Edge, unsigned int, EdgeHashFunction> edgesMap;
+		const unsigned int triCount = _triangulatedIndices.size();
+		const Triangle *tris = (const Triangle *)_triangulatedIndices.cdata();;
+
+		// Count how many times an edge is shared
+		for (unsigned int i = 0; i < triCount; ++i) {
+			const Triangle &tri = tris[i];
+
+			const Edge edge0(tri.v[0], tri.v[1]);
+			if (edgesMap.find(edge0) != edgesMap.end())
+				edgesMap[edge0] += 1;
+			else
+				edgesMap[edge0] = 1;
+
+			const Edge edge1(tri.v[1], tri.v[2]);
+			if (edgesMap.find(edge1) != edgesMap.end())
+				edgesMap[edge1] += 1;
+			else
+				edgesMap[edge1] = 1;
+
+			const Edge edge2(tri.v[2], tri.v[0]);
+			if (edgesMap.find(edge2) != edgesMap.end())
+				edgesMap[edge2] += 1;
+			else
+				edgesMap[edge2] = 1;
+		}
+
+		vector<bool> isBoundaryVertex(desc.numVertices, false);
+		vector<Far::Index> cornerVertexIndices;
+		vector<float> cornerWeights;
+		for (auto em : edgesMap) {
+			if (em.second == 1) {
+				// It is a boundary edge
+
+				const Edge &e = em.first;
+
+				if (!isBoundaryVertex[e.vIndex[0]]) {
+					cornerVertexIndices.push_back(e.vIndex[0]);
+					cornerWeights.push_back(10.f);
+					isBoundaryVertex[e.vIndex[0]] = true;
+				}
+
+				if (!isBoundaryVertex[e.vIndex[1]]) {
+					cornerVertexIndices.push_back(e.vIndex[1]);
+					cornerWeights.push_back(10.f);
+					isBoundaryVertex[e.vIndex[1]] = true;
+				}
+			}
+		}
+
+		// Initialize TopologyDescriptor corners if I have some
+		if (cornerVertexIndices.size() > 0) {
+			desc.numCorners = cornerVertexIndices.size();
+			desc.cornerVertexIndices = &cornerVertexIndices[0];
+			desc.cornerWeights = &cornerWeights[0];
+		}
+
+
 		// Instantiate a Far::TopologyRefiner from the descriptor
-		Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Create(desc);
+		Sdc::SchemeType type = Sdc::SCHEME_LOOP;
+		Far::TopologyRefiner *refiner = Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Create(desc,
+			Far::TopologyRefinerFactory<Far::TopologyDescriptor>::Options(type, options));
 
 		// Complexity
 		refiner->RefineUniform(Far::TopologyRefiner::UniformOptions(_refineLevel + 1));
