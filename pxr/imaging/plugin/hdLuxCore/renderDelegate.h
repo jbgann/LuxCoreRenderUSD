@@ -26,9 +26,7 @@
 
 #include "pxr/pxr.h"
 #include "pxr/imaging/hd/renderDelegate.h"
-#include "pxr/imaging/hd/renderThread.h"
 #include "pxr/base/tf/staticTokens.h"
-#include "pxr/imaging/hdLuxCore/renderer.h"
 #include "pxr/imaging/hdLuxCore/mesh.h"
 #include "pxr/imaging/hdLuxCore/light.h"
 
@@ -280,14 +278,6 @@ private:
     // A shared HdLuxCoreRenderParam object that stores top-level LuxCore state;
     // passed to prims during Sync().
     std::shared_ptr<HdLuxCoreRenderParam> _renderParam;
-
-    // A background render thread for running the actual renders in. The
-    // render thread object manages synchronization between the scene data
-    // and the background-threaded renderer.
-    HdRenderThread _renderThread;
-
-    // An LuxCore renderer object, to perform the actual raytracing.
-    HdLuxCoreRenderer _renderer;
 
     // A list of render setting exports.
     HdRenderSettingDescriptorList _settingDescriptors;

@@ -50,8 +50,6 @@ pxr_plugin(hdLuxCore
         instancer
         sampler
         renderPass
-        renderer
-        renderBuffer
         mesh
         light
 
