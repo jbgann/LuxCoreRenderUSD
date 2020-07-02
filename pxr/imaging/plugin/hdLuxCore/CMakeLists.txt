@@ -52,6 +52,7 @@ pxr_plugin(hdLuxCore
         renderPass
         mesh
         light
+        camera
 
     PUBLIC_HEADERS
         renderParam.h
