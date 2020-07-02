@@ -27,17 +27,14 @@
 #include "pxr/imaging/hdLuxCore/instancer.h"
 #include "pxr/imaging/hdLuxCore/renderParam.h"
 #include "pxr/imaging/hdLuxCore/renderPass.h"
+#include "pxr/imaging/hdLuxCore/camera.h"
 
 #include "pxr/imaging/hd/extComputation.h"
 #include "pxr/imaging/hd/resourceRegistry.h"
 #include "pxr/imaging/hd/tokens.h"
 
 
-//XXX: Add other Rprim types later
-#include "pxr/imaging/hd/camera.h"
-//XXX: Add other Sprim types later
 #include "pxr/imaging/hd/bprim.h"
-//XXX: Add bprim types
 
 #include <iostream>
 #include <chrono>
@@ -295,7 +292,7 @@ HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
 {
     cout << "HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId) " << sprimId << "\n";
     if (typeId == HdPrimTypeTokens->camera) {
-        return new HdCamera(sprimId);
+        return new HdLuxCoreCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->extComputation) {
         return new HdExtComputation(sprimId);
     } else if (typeId == HdPrimTypeTokens->sphereLight) {
