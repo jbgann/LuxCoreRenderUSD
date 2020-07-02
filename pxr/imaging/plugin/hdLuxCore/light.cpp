@@ -6,7 +6,6 @@ using namespace std;
 PXR_NAMESPACE_OPEN_SCOPE
 
 void HdLuxCoreLight::Sync(HdSceneDelegate* sceneDelegate, HdRenderParam* renderParam, HdDirtyBits* dirtyBits) {
-    cout << "HdLuxCoreLight::Sync\n" << std::flush;
 
     _transform = sceneDelegate->GetTransform(GetId());
     _color = sceneDelegate->GetLightParamValue(GetId(), HdPrimvarRoleTokens->color).Get<GfVec3f>();

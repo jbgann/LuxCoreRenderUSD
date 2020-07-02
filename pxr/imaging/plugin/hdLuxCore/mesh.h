@@ -124,7 +124,7 @@ public:
         return _transforms;
     }
 
-    bool HdLuxCoreMesh::IsValidTransform(GfMatrix4f m);
+    bool IsValidTransform(GfMatrix4f m);
     
 
 protected:
