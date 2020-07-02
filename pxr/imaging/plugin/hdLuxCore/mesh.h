@@ -35,6 +35,44 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 typedef std::vector<GfMatrix4d *> TfMatrix4dVector;
 
+// Triangle and Edge classes are from the LuxCore Renderer
+class Triangle {
+public:
+	Triangle() { }
+	Triangle(const unsigned int v0, const unsigned int v1, const unsigned int v2) {
+		v[0] = v0;
+		v[1] = v1;
+		v[2] = v2;
+	}
+	unsigned int v[3];
+};
+
+struct Edge {
+	Edge(const unsigned int v0Index, const unsigned int v1Index) {
+		if (v0Index <= v1Index) {
+			vIndex[0] = v0Index;
+			vIndex[1] = v1Index;
+		}
+		else {
+			vIndex[0] = v1Index;
+			vIndex[1] = v0Index;
+		}
+	}
+
+	bool operator==(const Edge &edge) const {
+		return (vIndex[0] == edge.vIndex[0]) && (vIndex[1] == edge.vIndex[1]);
+	}
+
+	unsigned int vIndex[2];
+};
+
+class EdgeHashFunction {
+public:
+	size_t operator()(const Edge &edge) const {
+		return (edge.vIndex[0] * 0x1f1f1f1fu) ^ edge.vIndex[1];
+	}
+};
+
 /// \class HdLuxCoreMesh
 ///
 /// An HdLuxCore representation of a subdivision surface or poly-mesh object.
@@ -225,14 +263,14 @@ private:
     HdDirtyBits *_dirtyBits;
     HdMeshReprDesc _desc;
     HdSceneDelegate *_sceneDelegate;
-    //VtMatrix4dArray _transforms;
     TfMatrix4dVector _transforms;
-    
-
     VtVec3fArray _points;
     VtVec3iArray _triangulatedIndices;
     HdMeshTopology _topology;
     GfMatrix4d _transform;
+	VtVec3fArray _normals;
+	VtVec3fArray _uvs;
+	int _refineLevel;
 
     // This class does not support copying.
     HdLuxCoreMesh(const HdLuxCoreMesh&)             = delete;
