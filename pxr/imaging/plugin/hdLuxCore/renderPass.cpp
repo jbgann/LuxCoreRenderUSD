@@ -192,7 +192,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             std::string light_id = light->GetId().GetString();
             GfVec3f color = light->GetColor();
             lc_scene->Parse(
-                luxrays::Property("scene.lights." + light_id + ".type")("sphere") <<
+                luxrays::Property("scene.lights." + light_id + ".type")("point") <<
                 luxrays::Property("scene.lights." + light_id + ".color")(color[0], color[1], color[2]) <<
                 luxrays::Property("scene.lights." + light_id + ".position")(transform[3][0], transform[3][1], transform[3][2])
             );
