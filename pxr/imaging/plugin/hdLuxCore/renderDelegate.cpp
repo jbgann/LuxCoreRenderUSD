@@ -62,7 +62,6 @@ const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_SPRIM_TYPES =
 
 const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
-    HdPrimTypeTokens->renderBuffer,
 };
 
 std::mutex HdLuxCoreRenderDelegate::_mutexResourceRegistry;
@@ -75,14 +74,6 @@ HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)
 {
     cout << "void HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)\n";
    return;
-}
-
-static void _RenderCallback(HdLuxCoreRenderer *renderer,
-                            HdRenderThread *renderThread)
-{
-    cout << "static void _RenderCallback(HdLuxCoreRenderer *renderer, HdRenderThread *renderThread)\n";
-    renderer->Clear();
-    renderer->Render(renderThread);
 }
 
 HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()
@@ -255,7 +246,7 @@ HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index,
 {
     cout << "HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index, HdRprimeCollection const& collection)\n";
     return HdRenderPassSharedPtr(new HdLuxCoreRenderPass(
-        index, collection, &_renderThread, &_renderer, &_sceneVersion));
+        index, collection, &_sceneVersion));
 }
 
 HdInstancer *
@@ -350,11 +341,7 @@ HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
     cout << "HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)\n";
-    if (typeId == HdPrimTypeTokens->renderBuffer) {
-        return new HdLuxCoreRenderBuffer(bprimId);
-    } else {
-        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-    }
+
     return nullptr;
 }
 
@@ -362,11 +349,7 @@ HdBprim *
 HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 {
     cout << "HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)\n";
-    if (typeId == HdPrimTypeTokens->renderBuffer) {
-        return new HdLuxCoreRenderBuffer(SdfPath::EmptyPath());
-    } else {
-        TF_CODING_ERROR("Unknown Bprim Type %s", typeId.GetText());
-    }
+
     return nullptr;
 }
 

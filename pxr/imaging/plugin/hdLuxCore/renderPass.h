@@ -28,9 +28,6 @@
 
 #include "pxr/imaging/hd/aov.h"
 #include "pxr/imaging/hd/renderPass.h"
-#include "pxr/imaging/hd/renderThread.h"
-#include "pxr/imaging/hdLuxCore/renderer.h"
-#include "pxr/imaging/hdLuxCore/renderBuffer.h"
 #include "pxr/imaging/hdx/compositor.h"
 
 #include "pxr/base/gf/matrix4d.h"
@@ -58,8 +55,6 @@ public:
     ///   \param renderer A handle to the global renderer.
     HdLuxCoreRenderPass(HdRenderIndex *index,
                        HdRprimCollection const &collection,
-                       HdRenderThread *renderThread,
-                       HdLuxCoreRenderer *renderer,
                        std::atomic<int> *sceneVersion);
 
     /// Renderpass destructor.
@@ -88,12 +83,6 @@ protected:
     virtual void _MarkCollectionDirty() override {}
 
 private:
-    // A handle to the render thread.
-    HdRenderThread *_renderThread;
-
-    // A handle to the global renderer.
-    HdLuxCoreRenderer *_renderer;
-
     // A reference to the global scene version.
     std::atomic<int> *_sceneVersion;
 
@@ -118,11 +107,6 @@ private:
 
     // The list of aov buffers this renderpass should write to.
     HdRenderPassAovBindingVector _aovBindings;
-
-    // If no attachments are provided, provide an anonymous renderbuffer for
-    // color and depth output.
-    HdLuxCoreRenderBuffer _colorBuffer;
-    HdLuxCoreRenderBuffer _depthBuffer;
 
     // Were the color/depth buffer converged the last time we blitted them?
     bool _converged;

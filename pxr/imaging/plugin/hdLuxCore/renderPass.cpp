@@ -35,12 +35,8 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
                                        HdRprimCollection const &collection,
-                                       HdRenderThread *renderThread,
-                                       HdLuxCoreRenderer *renderer,
                                        std::atomic<int> *sceneVersion)
     : HdRenderPass(index, collection)
-    , _renderThread(renderThread)
-    , _renderer(renderer)
     , _sceneVersion(sceneVersion)
     , _lastSceneVersion(0)
     , _lastSettingsVersion(0)
@@ -49,8 +45,6 @@ HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
     , _viewMatrix(1.0f) // == identity
     , _projMatrix(1.0f) // == identity
     , _aovBindings()
-    , _colorBuffer(SdfPath::EmptyPath())
-    , _depthBuffer(SdfPath::EmptyPath())
     , _converged(false)
 {
     cout << "HdLuxCoreRenderPass::HdLuxCoreRenderPass()\n";
@@ -59,38 +53,20 @@ HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
 HdLuxCoreRenderPass::~HdLuxCoreRenderPass()
 {
     cout << "HdLuxCoreRenderPass::~HdLuxCoreRenderPass()\n";
-    // Make sure the render thread's not running, in case it's writing
-    // to _colorBuffer/_depthBuffer.
-    _renderThread->StopRender();
 }
 
 bool
 HdLuxCoreRenderPass::IsConverged() const
 {
     cout << "HdLuxCoreRenderPass::IsConverged()\n";
-    // If the aov binding array is empty, the render thread is rendering into
-    // _colorBuffer and _depthBuffer.  _converged is set to their convergence
-    // state just before blit, so use that as our answer.
-    if (_aovBindings.size() == 0) {
-        return _converged;
-    }
 
-    // Otherwise, check the convergence of all attachments.
-    for (size_t i = 0; i < _aovBindings.size(); ++i) {
-        if (_aovBindings[i].renderBuffer &&
-            !_aovBindings[i].renderBuffer->IsConverged()) {
-            return false;
-        }
-    }
-    return true;
+    return _converged;
 }
 
 void
 HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
-{/*
-    std::this_thread::sleep_for(
-        std::chrono::milliseconds(static_cast<size_t>(1*1000))); */
+{
     logit("HdLuxCoreRenderPass::_Execute()");
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
@@ -119,6 +95,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     // Has the view or projection matrix changed?  Reset the camera if so.
     if (current_inverseViewMatrix != _inverseViewMatrix || current_inverseProjectionMatrix != _inverseProjectionMatrix) {
+        _converged = false;
         _inverseViewMatrix = current_inverseViewMatrix;
         _inverseProjectionMatrix = current_inverseProjectionMatrix;
 
@@ -201,6 +178,10 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     lc_session->EndSceneEdit();
     lc_session->Resume();
+
+    // Determine if the scene has finished rendering
+    if (lc_session->HasDone())
+        _converged = true;
 
     // Copy the LuxCore film render into a buffer
     unique_ptr<float[]> pxl_buffer(new float[_width * _height * 3]);
