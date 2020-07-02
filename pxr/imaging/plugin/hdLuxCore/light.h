@@ -34,6 +34,10 @@ class HdLuxCoreLight : public HdLight {
         virtual float GetIntensity() const {
             return _intensity;
         }
+
+		virtual float GetExposure() const {
+			return _exposure;
+		}
         
         virtual GfVec3f GetColor() const {
             return _color;
@@ -54,7 +58,8 @@ class HdLuxCoreLight : public HdLight {
     private:
         GfMatrix4d _transform;
         float _intensity = 1.0;
-        GfVec3f _color = GfVec3f(0.0f);
+	float _exposure = 1.0;
+        GfVec3f _color = GfVec3f(1.0f);
         const TfToken _lightType;
         bool _created;
 };
