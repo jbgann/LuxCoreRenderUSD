@@ -225,7 +225,6 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 {
     cout << "_CreateLuxCoreTriangleMesh " << std::flush;
     Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
-    RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
 
     // Used to name the type of mesh in LuxCore
     SdfPath const& id = GetId();
@@ -406,17 +405,12 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
     unsigned int *triangle_indicies = (unsigned int *)Scene::AllocTrianglesBuffer(_triangulatedIndices.size());
     triangle_indicies = (unsigned int *)_triangulatedIndices.cdata();
 
-    // todo: rescale camera so we don't have to x 100 these
-    // also cast these as above
     float *verticies = (float *)Scene::AllocVerticesBuffer(_points.size());
-    for (int i = 0; i < _points.size(); i++) {
+    for (unsigned int i = 0; i < _points.size(); i++) {
         verticies[i*3+0] = _points[i][0];
         verticies[i*3+1] = _points[i][1];
         verticies[i*3+2] = _points[i][2];
     }
-
-    //cout << "Points: " << _points << std::flush;
-    //cout << "Triangulated Indicies: " << _triangulatedIndices << std::flush;
 
     lc_scene->DefineMesh(id.GetString(), _points.size(), _triangulatedIndices.size(), verticies, triangle_indicies,  NULL, NULL, NULL, NULL);
 

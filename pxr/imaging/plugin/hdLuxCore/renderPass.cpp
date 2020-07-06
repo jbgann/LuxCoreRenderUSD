@@ -147,7 +147,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                     std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
                     lc_scene->Parse(
                         luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
-                        luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
+                        luxrays::Property("scene.objects." + instanceName + ".material")("mat_default")
                     );
                     GfMatrix4d *t = transforms[i];
                     GfMatrix4f m = GfMatrix4f(*t);

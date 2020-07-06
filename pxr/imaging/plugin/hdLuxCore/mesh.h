@@ -90,14 +90,8 @@ public:
 /// updated LuxCore geometry objects.  Rebuilding the acceleration datastructures
 /// is deferred to HdLuxCoreRenderDelegate::CommitResources(), which runs after
 /// all prims have been updated. After running Sync() for each prim and
-/// HdEmbreeRenderDelegate::CommitResources(), the scene should be ready for
+/// HdLuxCoreRenderDelegate::CommitResources(), the scene should be ready for
 /// rendering via ray queries.
-///
-/// An rprim's state is lazily populated in Sync(); matching this, Finalize()
-/// does the heavy work of releasing state (such as handles into the top-level
-/// embree scene), so that object population and existence aren't tied to
-/// each other.
-///
 
 class HdLuxCoreMesh final : public HdMesh {
 public:
@@ -115,8 +109,7 @@ public:
     virtual ~HdLuxCoreMesh() = default;
 
     /// Inform the scene graph which state needs to be downloaded in the
-    /// first Sync() call: in this case, topology and points data to build
-    /// the geometry object in the embree scene graph.
+    /// first Sync() call
     ///   \return The initial dirty state this mesh wants to query.
     virtual HdDirtyBits GetInitialDirtyBitsMask() const override;
 
@@ -140,8 +133,7 @@ public:
     /// Reprs are used by hydra for controlling per-item draw settings like
     /// flat/smooth shaded, wireframe, refined, etc.
     ///   \param sceneDelegate The data source for this geometry item.
-    ///   \param renderParam An HdEmbreeRenderParam object containing top-level
-    ///                      embree state.
+    ///   \param renderParam An HdLuxCoreRenderParam object
     ///   \param dirtyBits A specifier for which scene data has changed.
     ///   \param reprToken A specifier for which representation to draw with.
     ///
@@ -150,10 +142,8 @@ public:
                       HdDirtyBits*     dirtyBits,
                       TfToken const    &reprToken) override;
 
-    /// Release any resources this class is holding onto: in this case,
-    /// destroy the geometry object in the embree scene graph.
-    ///   \param renderParam An HdEmbreeRenderParam object containing top-level
-    ///                      embree state.
+    /// Release any resources this class is holding onto
+    ///   \param renderParam An HdLuxCoreRenderParam object
     virtual void Finalize(HdRenderParam *renderParam) override;
 
     bool CreateLuxCoreTriangleMesh(HdRenderParam *renderParam);
