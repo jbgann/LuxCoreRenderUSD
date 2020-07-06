@@ -24,6 +24,7 @@
 #include "pxr/imaging/glf/glew.h"
 
 #include "pxr/imaging/hdLuxCore/instancer.h"
+#include "pxr/imaging/hdLuxCore/renderDelegate.h"
 
 #include "pxr/imaging/hdLuxCore/sampler.h"
 #include "pxr/imaging/hd/sceneDelegate.h"
@@ -46,6 +47,7 @@ PXR_NAMESPACE_OPEN_SCOPE
 TF_DEFINE_PRIVATE_TOKENS(
     _tokens,
     (instanceTransform)
+
     (rotate)
     (scale)
     (translate)
@@ -56,24 +58,25 @@ HdLuxCoreInstancer::HdLuxCoreInstancer(HdSceneDelegate* delegate,
                                      SdfPath const &parentId)
     : HdInstancer(delegate, id, parentId)
 {
-    cout << "HdLuxCoreInstancer::HdLuxCoreInstancer(HdSceneDelegate* delegate,SdfPath const& id,SdfPath const &parentId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
 }
 
 HdLuxCoreInstancer::~HdLuxCoreInstancer()
 {
+    logit(BOOST_CURRENT_FUNCTION);
+
     TF_FOR_ALL(it, _primvarMap) {
         delete it->second;
     }
     _primvarMap.clear();
-    cout << "HdLuxCoreInstancer::~HdLuxCoreInstancer()\n";
 }
 
 void
 HdLuxCoreInstancer::_SyncPrimvars()
 {
-    cout << "HdLuxCoreInstancer::_SyncPrimvars()\n";
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
+    logit(BOOST_CURRENT_FUNCTION);
 
     HdChangeTracker &changeTracker = 
         GetDelegate()->GetRenderIndex().GetChangeTracker();
@@ -118,9 +121,10 @@ HdLuxCoreInstancer::_SyncPrimvars()
 VtMatrix4dArray
 HdLuxCoreInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)
 {
-    cout << "VtMatrix4dArray HdLuxCoreInstancer::ComputeInstanceTransforms(SdfPath const &prototypeId)\n";
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
+
+    logit(BOOST_CURRENT_FUNCTION);
 
     _SyncPrimvars();
 

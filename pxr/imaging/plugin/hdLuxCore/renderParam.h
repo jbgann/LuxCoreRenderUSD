@@ -52,15 +52,12 @@ public:
                         std::atomic<int> *sceneVersion)
         : _scene(scene), _config(config), _session(session), _sceneVersion(sceneVersion)
         {}
+
     virtual ~HdLuxCoreRenderParam() = default;
 
     /// Accessor for the top-level LuxCore scene.
     Scene* AcquireSceneForEdit() {
-        cout << "A\n";
-        //_renderThread->StopRender();
-        cout << "B\n";
-        //(*_sceneVersion)++;
-        cout << "C\n";
+        (*_sceneVersion)++;
         return _scene;
     }
 

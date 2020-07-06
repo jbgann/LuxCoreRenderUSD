@@ -47,18 +47,18 @@ HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
     , _aovBindings()
     , _converged(false)
 {
-    cout << "HdLuxCoreRenderPass::HdLuxCoreRenderPass()\n";
+    logit(BOOST_CURRENT_FUNCTION);
 }
 
 HdLuxCoreRenderPass::~HdLuxCoreRenderPass()
 {
-    cout << "HdLuxCoreRenderPass::~HdLuxCoreRenderPass()\n";
+    logit(BOOST_CURRENT_FUNCTION);
 }
 
 bool
 HdLuxCoreRenderPass::IsConverged() const
 {
-    cout << "HdLuxCoreRenderPass::IsConverged()\n";
+    logit(BOOST_CURRENT_FUNCTION);
 
     return _converged;
 }
@@ -67,7 +67,7 @@ void
 HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
 {
-    logit("HdLuxCoreRenderPass::_Execute()");
+    logit(BOOST_CURRENT_FUNCTION);
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdLuxCoreRenderDelegate *renderDelegateLux = reinterpret_cast<HdLuxCoreRenderDelegate*>(renderDelegate);
@@ -114,7 +114,6 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         up = _inverseViewMatrix.TransformDir(up).GetNormalized();
         origin = _inverseViewMatrix.Transform(origin);
 
-        cout << "scene.camera.lookat.orig: " << origin[0] << " " << origin[1] << " " << origin[2] << "\n" << std::flush;
         // Stopping the session allows the camera to be reset
         lc_session->Stop();
         lc_scene->Parse(luxrays::Properties() <<

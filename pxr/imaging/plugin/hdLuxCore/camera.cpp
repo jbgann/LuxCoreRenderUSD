@@ -23,6 +23,7 @@
 //
 
 #include "pxr/imaging/hdLuxCore/camera.h"
+#include "pxr/imaging/hdLuxCore/renderDelegate.h"
 
 using namespace std;
 
@@ -35,13 +36,16 @@ HdLuxCoreCamera::HdLuxCoreCamera(SdfPath const& id)
 
 void HdLuxCoreCamera::Sync(HdSceneDelegate* sceneDelegate,
 	HdRenderParam* renderParam,
-	HdDirtyBits* dirtyBits) {
+	HdDirtyBits* dirtyBits)
+{
+    
+    logit(BOOST_CURRENT_FUNCTION);
 
-	if (*dirtyBits & HdCamera::DirtyViewMatrix) {
-		sceneDelegate->SampleTransform(GetId(), &_transform);
-	}
+    if (*dirtyBits & HdCamera::DirtyViewMatrix) {
+        sceneDelegate->SampleTransform(GetId(), &_transform);
+    }
 
-	HdCamera::Sync(sceneDelegate, renderParam, dirtyBits);
+    HdCamera::Sync(sceneDelegate, renderParam, dirtyBits);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
