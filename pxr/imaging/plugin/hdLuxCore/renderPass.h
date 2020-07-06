@@ -21,8 +21,8 @@
 // KIND, either express or implied. See the Apache License for the specific
 // language governing permissions and limitations under the Apache License.
 //
-#ifndef HDEMBREE_RENDER_PASS_H
-#define HDEMBREE_RENDER_PASS_H
+#ifndef HDLUXCORE_RENDER_PASS_H
+#define HDLUXCORE_RENDER_PASS_H
 
 #include "pxr/pxr.h"
 
@@ -43,8 +43,6 @@ typedef boost::shared_ptr<class GlfGLContext> GlfGLContextSharedPtr;
 /// HdRenderPass represents a single render iteration, rendering a view of the
 /// scene (the HdRprimCollection) for a specific viewer (the camera/viewport
 /// parameters in HdRenderPassState) to the current draw target.
-///
-/// This class does so by raycasting into the embree scene via HdLuxCoreRenderer.
 ///
 class HdLuxCoreRenderPass final : public HdRenderPass {
 public:
@@ -118,4 +116,4 @@ private:
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
-#endif // HDEMBREE_RENDER_PASS_H
+#endif // HDLUXCORE_RENDER_PASS_H

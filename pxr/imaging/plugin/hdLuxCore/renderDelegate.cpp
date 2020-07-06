@@ -57,6 +57,8 @@ const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_SPRIM_TYPES =
     HdPrimTypeTokens->sphereLight
 };
 
+// Currently the plugin does not support textures and materials other than the default
+// Bprims will need ot be supported if textures are to be implemented
 const TfTokenVector HdLuxCoreRenderDelegate::SUPPORTED_BPRIM_TYPES =
 {
 };
@@ -102,8 +104,7 @@ HdLuxCoreRenderDelegate::_Initialize()
                 luxrays::Property("scene.camera.type")("perspective") <<
 		luxrays::Property("scene.camera.lookat.orig")(-1000.0f , -1000.0f , -1000.0f));
 
-    //Luxcore requires at least one light source, so we are hardcoding one in until we
-    //can parse them from USD directives
+    // LuxCore requires at least one light source in order to initialize the renderer
     lc_scene->Parse(
         luxrays::Property("scene.lights.light1.type")("point") <<
         luxrays::Property("scene.lights.light1.color")(0.0, 1.0, 0.0) <<
@@ -112,16 +113,13 @@ HdLuxCoreRenderDelegate::_Initialize()
         luxrays::Property("scene.lights.light1.position")(-1000.55, -1000.95, -1000.66)
     );
 
-    // TODO: define actual materials elsewhere
+    // Default material used for all renders
     lc_scene->Parse(
-        luxrays::Property("scene.materials.whitelight.type")("matte") <<
-        luxrays::Property("scene.materials.whitelight.emission")(1000000.f, 1000000.f, 1000000.f) <<
-        luxrays::Property("scene.materials.mat_red.type")("matte") <<
-        luxrays::Property("scene.materials.mat_red.kd")(1.f, 1.f, 1.f) <<
-        luxrays::Property("scene.materials.mat_gold.type")("metal2") <<
-        luxrays::Property("scene.materials.mat_gold.preset")("gold")
-	);
+        luxrays::Property("scene.materials.mat_default.type")("matte") <<
+        luxrays::Property("scene.materials.mat_default.kd")(.75f, .75f, .75f)
+    );
 
+    // Use the PATHCPU engine for development
     lc_config = luxcore::RenderConfig::Create(
         luxrays::Property("renderengine.type")("PATHCPU") <<
 		luxrays::Property("sampler.type")("RANDOM"),
@@ -146,7 +144,6 @@ HdLuxCoreRenderDelegate::_Initialize()
 HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 {
     cout << "HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()\n";
-    // Clean the resource registry only when it is the last Embree delegate
     {
         std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
         if (_counterResourceRegistry.fetch_sub(1) == 1) {
@@ -156,7 +153,6 @@ HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 
     lc_session->Stop();
 
-    // Destroy embree library and scene state.
     _renderParam.reset();
 }
 
