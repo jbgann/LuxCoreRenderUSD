@@ -41,7 +41,8 @@ TF_REGISTRY_FUNCTION(TfType)
 HdRenderDelegate*
 HdLuxCoreRendererPlugin::CreateRenderDelegate()
 {
-    cout << "Starting HdLuxCoreRendererPlugin::CreateRenderDelegate()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return new HdLuxCoreRenderDelegate();
 }
 
@@ -54,9 +55,8 @@ HdLuxCoreRendererPlugin::DeleteRenderDelegate(HdRenderDelegate *renderDelegate)
 bool 
 HdLuxCoreRendererPlugin::IsSupported() const
 {
-    // Nothing more to check for now, we assume if the plugin loads correctly
-    // it is supported.
-    cout << "Starting HdLuxCoreRendererPlugin::IsSupported()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return true;
 }
 

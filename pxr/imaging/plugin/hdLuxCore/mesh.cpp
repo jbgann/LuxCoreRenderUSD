@@ -92,6 +92,8 @@ HdLuxCoreMesh::HdLuxCoreMesh(SdfPath const& id,
 void
 HdLuxCoreMesh::Finalize(HdRenderParam *renderParam)
 {
+    logit(BOOST_CURRENT_FUNCTION);
+
     Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
     RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
     SdfPath const& id = GetId();
@@ -106,6 +108,8 @@ HdLuxCoreMesh::Finalize(HdRenderParam *renderParam)
 HdDirtyBits
 HdLuxCoreMesh::GetInitialDirtyBitsMask() const
 {
+    logit(BOOST_CURRENT_FUNCTION);
+
     // The initial dirty bits control what data is available on the first
     // run through _PopulateRtMesh(), so it should list every data item
     // that _PopulateRtMesh requests.
@@ -130,6 +134,8 @@ HdLuxCoreMesh::GetInitialDirtyBitsMask() const
 HdDirtyBits
 HdLuxCoreMesh::_PropagateDirtyBits(HdDirtyBits bits) const
 {
+    logit(BOOST_CURRENT_FUNCTION);
+
     return bits;
 }
 
@@ -138,6 +144,8 @@ HdLuxCoreMesh::_InitRepr(TfToken const &reprToken,
                         HdDirtyBits *dirtyBits)
 {
     TF_UNUSED(dirtyBits);
+
+    logit(BOOST_CURRENT_FUNCTION);
 
     // Create an empty repr.
     _ReprVector::iterator it = std::find_if(_reprs.begin(), _reprs.end(),
@@ -156,7 +164,7 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     HD_TRACE_FUNCTION();
     HF_MALLOC_TAG_FUNCTION();
 
-    logit("HdLuxCoreMesh::Sync");
+    logit(BOOST_CURRENT_FUNCTION);
 
     // XXX: A mesh repr can have multiple repr decs; this is done, for example,
     // when the drawstyle specifies different rasterizing modes between front
@@ -222,7 +230,8 @@ template <unsigned int DIMENSIONS> static Osd::CpuVertexBuffer *BuildBuffer(
 bool
 HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 {
-    cout << "_CreateLuxCoreTriangleMesh " << std::flush;
+    logit(BOOST_CURRENT_FUNCTION);
+
     Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
 
     // Used to name the type of mesh in LuxCore

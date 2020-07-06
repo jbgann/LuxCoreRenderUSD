@@ -35,11 +35,25 @@
 
 
 #include "pxr/imaging/hd/bprim.h"
+#include <boost/current_function.hpp>
 
 #include <iostream>
 #include <chrono>
 #include <ctime>
 using namespace std;
+
+int logit(std::string message)
+{
+    auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now()); 
+    char *time = ctime(&timenow);
+
+    // remove the trailing newline
+    time[strlen(time) - 1] = '\0';
+
+    cout << "PLUGIN: " << time << " Thread: " << std::this_thread::get_id() << " " << message << endl << std::flush;
+
+    return 0;
+}
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -71,15 +85,17 @@ HdResourceRegistrySharedPtr HdLuxCoreRenderDelegate::_resourceRegistry;
 void
 HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)
 {
-    cout << "void HdLuxCoreRenderDelegate::HandleLuxCoreError(const char* msg)\n";
-   return;
+    logit(BOOST_CURRENT_FUNCTION);
+
+    return;
 }
 
 HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()
     : HdRenderDelegate()
     
 {
-    cout << "HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     _Initialize();
 }
 
@@ -87,14 +103,16 @@ HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate(
     HdRenderSettingsMap const& settingsMap)
     : HdRenderDelegate(settingsMap)
 {
-    cout << "HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate(HdRenderSettingsMap settingsMap)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     _Initialize();
 }
 
 void
 HdLuxCoreRenderDelegate::_Initialize()
 {
-    cout << "HdLuxCoreRenderDelegate::_Initialize()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     luxcore::Init();
     
     lc_scene = luxcore::Scene::Create();
@@ -144,7 +162,8 @@ HdLuxCoreRenderDelegate::_Initialize()
 
 HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 {
-    cout << "HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     {
         std::lock_guard<std::mutex> guard(_mutexResourceRegistry);
         if (_counterResourceRegistry.fetch_sub(1) == 1) {
@@ -160,55 +179,62 @@ HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
 HdRenderSettingDescriptorList
 HdLuxCoreRenderDelegate::GetRenderSettingDescriptors() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetRenderSettingDescriptors()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return _settingDescriptors;
 }
 
 HdRenderParam*
 HdLuxCoreRenderDelegate::GetRenderParam() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetRenderParam()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return _renderParam.get();
 }
 
 void
 HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
 {
-    cout << "HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)\n";
+    logit(BOOST_CURRENT_FUNCTION);
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedRprimTypes() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetSupportedRprimTypes()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return SUPPORTED_RPRIM_TYPES;
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedSprimTypes() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetSupportedSprimTypes()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return SUPPORTED_SPRIM_TYPES;
 }
 
 TfTokenVector const&
 HdLuxCoreRenderDelegate::GetSupportedBprimTypes() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetSupportedBprimTypes()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return SUPPORTED_BPRIM_TYPES;
 }
 
 HdResourceRegistrySharedPtr
 HdLuxCoreRenderDelegate::GetResourceRegistry() const
 {
-    cout << "HdLuxCoreRenderDelegate::GetResourceRegistry()\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return _resourceRegistry;
 }
 
 HdAovDescriptor
 HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
 {
-    cout << "HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     if (name == HdAovTokens->color) {
         return HdAovDescriptor(HdFormatUNorm8Vec4, true,
                                VtValue(GfVec4f(0.0f)));
@@ -238,7 +264,8 @@ HdRenderPassSharedPtr
 HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index,
                             HdRprimCollection const& collection)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index, HdRprimeCollection const& collection)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return HdRenderPassSharedPtr(new HdLuxCoreRenderPass(
         index, collection, &_sceneVersion));
 }
@@ -248,14 +275,16 @@ HdLuxCoreRenderDelegate::CreateInstancer(HdSceneDelegate *delegate,
                                         SdfPath const& id,
                                         SdfPath const& instancerId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateInstancer(HdSceneDelegate *delegate, SdfPath const& id, SdfPath const& instancerId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     return new HdLuxCoreInstancer(delegate, id, instancerId);
 }
 
 void
 HdLuxCoreRenderDelegate::DestroyInstancer(HdInstancer *instancer)
 {
-    cout << "HdLuxCoreRenderDelegate::DestroyInstancer(HdInstancer *instancer)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     delete instancer;
 }
 
@@ -264,7 +293,8 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
                                     SdfPath const& rprimId,
                                     SdfPath const& instancerId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     if (typeId == HdPrimTypeTokens->mesh) {
         HdLuxCoreMesh *mesh = new HdLuxCoreMesh(rprimId, instancerId);
         _rprimMap[rprimId.GetString()] = mesh;
@@ -279,7 +309,8 @@ HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId,
 void
 HdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)
 {
-    cout << "HdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     delete rPrim;
 }
 
@@ -287,7 +318,8 @@ HdSprim *
 HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
                                     SdfPath const& sprimId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId) " << sprimId << "\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     if (typeId == HdPrimTypeTokens->camera) {
         return new HdLuxCoreCamera(sprimId);
     } else if (typeId == HdPrimTypeTokens->extComputation) {
@@ -306,7 +338,8 @@ HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId,
 HdSprim *
 HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     // For fallback sprims, create objects with an empty scene path.
     // They'll use default values and won't be updated by a scene delegate.
     if (typeId == HdPrimTypeTokens->camera) {
@@ -325,7 +358,7 @@ HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
 void
 HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
 {
-    cout << "HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)\n";
+    logit(BOOST_CURRENT_FUNCTION);
 
     delete sPrim;
 }
@@ -334,7 +367,7 @@ HdBprim *
 HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId,
                                     SdfPath const& bprimId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
 
     return nullptr;
 }
@@ -342,7 +375,7 @@ HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId,
 HdBprim *
 HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 {
-    cout << "HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)\n";
+    logit(BOOST_CURRENT_FUNCTION);
 
     return nullptr;
 }
@@ -350,7 +383,8 @@ HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
 void
 HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
 {
-    cout << "HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)\n";
+    logit(BOOST_CURRENT_FUNCTION);
+
     delete bPrim;
 }
 
@@ -358,10 +392,3 @@ PXR_NAMESPACE_CLOSE_SCOPE
 
 
 
-int logit(std::string message)
-{
-    auto timenow = chrono::system_clock::to_time_t(chrono::system_clock::now()); 
-    cout << "LOG: " << ctime(&timenow) << " Thread: " << std::this_thread::get_id() << message << endl;
-
-    return 0;
-}
