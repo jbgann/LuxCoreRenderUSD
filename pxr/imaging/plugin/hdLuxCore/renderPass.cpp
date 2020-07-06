@@ -85,7 +85,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         lc_session->Pause();
         lc_session->Parse(
             luxrays::Property("film.width")(_width) <<
-		    luxrays::Property("film.height")(_height)
+            luxrays::Property("film.height")(_height)
         );
         lc_session->Resume();
     }
@@ -144,13 +144,14 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                 // We can assume that there will always be one transform per mesh prototype
                 for (size_t i = 0; i < transforms.size(); i++)
                 {
+                    GfMatrix4d *t = transforms[i];
+                    GfMatrix4f m = GfMatrix4f(*t);
+
                     std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
                     lc_scene->Parse(
                         luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
                         luxrays::Property("scene.objects." + instanceName + ".material")("mat_default")
                     );
-                    GfMatrix4d *t = transforms[i];
-                    GfMatrix4f m = GfMatrix4f(*t);
                     lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
                 }
             }
@@ -160,6 +161,11 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Render any lighting
     TfHashMap<std::string, HdLuxCoreLight*> lightMap = renderDelegateLux->_sprimLightMap;
     TfHashMap<std::string, HdLuxCoreLight*>::iterator l_iter;
+
+    // If we already have lighting, remove the default light
+    if (lightMap.size() > 0) {
+        lc_scene->DeleteLight("light_default");
+    }
 
     for (l_iter = lightMap.begin(); l_iter != lightMap.end(); ++l_iter) {
         HdLuxCoreLight *light = l_iter->second;

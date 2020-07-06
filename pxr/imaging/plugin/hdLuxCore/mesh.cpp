@@ -98,7 +98,6 @@ HdLuxCoreMesh::Finalize(HdRenderParam *renderParam)
 
     lc_session->BeginSceneEdit();
     if (lc_scene->IsMeshDefined(id.GetString())) {
-        cout << "Object is being deleted";
         lc_scene->DeleteObject(id.GetString());
     }
     lc_session->EndSceneEdit();

@@ -101,16 +101,17 @@ HdLuxCoreRenderDelegate::_Initialize()
 
     // Initialize reqiured default camera location coordinates
     lc_scene->Parse(luxrays::Properties() <<
-                luxrays::Property("scene.camera.type")("perspective") <<
-		luxrays::Property("scene.camera.lookat.orig")(-1000.0f , -1000.0f , -1000.0f));
+        luxrays::Property("scene.camera.type")("perspective") <<
+	luxrays::Property("scene.camera.lookat.orig")(-1000.0f , -1000.0f , -1000.0f));
 
     // LuxCore requires at least one light source in order to initialize the renderer
+    // This default light is removed later on unless lighting is missing from the USD scene file
     lc_scene->Parse(
-        luxrays::Property("scene.lights.light1.type")("point") <<
-        luxrays::Property("scene.lights.light1.color")(0.0, 1.0, 0.0) <<
-        luxrays::Property("scene.lights.light1.gain")(0.0, 0.0, 0.0) <<
-        luxrays::Property("scene.lights.light1.direction")(1.0, 1.0, -1.0) <<
-        luxrays::Property("scene.lights.light1.position")(-1000.55, -1000.95, -1000.66)
+        luxrays::Property("scene.lights.light_default.type")("point") <<
+        luxrays::Property("scene.lights.light_default.color")(1.0, 1.0, 1.0) <<
+        luxrays::Property("scene.lights.light_default.gain")(1.0, 1.0, 1.0) <<
+        luxrays::Property("scene.lights.light_default.direction")(1.0, 1.0, 1.0) <<
+        luxrays::Property("scene.lights.light_default.position")(1.0, 1.0, 1.0)
     );
 
     // Default material used for all renders
@@ -122,7 +123,7 @@ HdLuxCoreRenderDelegate::_Initialize()
     // Use the PATHCPU engine for development
     lc_config = luxcore::RenderConfig::Create(
         luxrays::Property("renderengine.type")("PATHCPU") <<
-		luxrays::Property("sampler.type")("RANDOM"),
+        luxrays::Property("sampler.type")("RANDOM"),
         lc_scene
     );
 
