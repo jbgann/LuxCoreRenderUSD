@@ -136,25 +136,45 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Instantiate LuxCore mesh instances
     for (iter = meshMap.begin(); iter != meshMap.end(); ++iter) {
         HdLuxCoreMesh *mesh = iter->second;
+		TfMatrix4dVector transforms = mesh->GetTransforms();;
 
-        if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
-            if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
-                TfMatrix4dVector transforms = mesh->GetTransforms();
-                // We can assume that there will always be one transform per mesh prototype
-                for (size_t i = 0; i < transforms.size(); i++)
-                {
-                    GfMatrix4d *t = transforms[i];
-                    GfMatrix4f m = GfMatrix4f(*t);
+		if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
+			mesh->CreateLuxCoreTriangleMesh(renderParam);
+		}
 
-                    std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
-                    lc_scene->Parse(
-                        luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
-                        luxrays::Property("scene.objects." + instanceName + ".material")("mat_default")
-                    );
-                    lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
-                }
-            }
-        }
+		if (mesh->IsVisible() && mesh->GetInstancesRendered() != transforms.size()) {
+			// We can assume that there will always be one transform per mesh prototype
+			for (size_t i = 0; i < transforms.size(); i++)
+			{
+				GfMatrix4d *t = transforms[i];
+				GfMatrix4f m = GfMatrix4f(*t);
+
+				std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
+				lc_scene->Parse(
+					luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
+					luxrays::Property("scene.objects." + instanceName + ".material")("mat_default")
+				);
+				lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
+			}
+			mesh->SetInstancesRendered(transforms.size());
+		}
+		else {
+			if (!mesh->IsVisible() && mesh->GetInstancesRendered() > 0) {
+				// We can assume that there will always be one transform per mesh prototype
+				for (size_t i = 0; i < transforms.size(); i++)
+				{
+					GfMatrix4d *t = transforms[i];
+					GfMatrix4f m = GfMatrix4f(*t);
+
+					std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
+					// Work around a bug in LuxCore -- remove the previous transformation so
+					// it doesn't get re-added if/when the object is re-instanced
+					lc_scene->UpdateObjectTransformation(instanceName, m.GetInverse().GetArray());
+					lc_scene->DeleteObject(instanceName);
+				}
+				mesh->SetInstancesRendered(0);
+			}
+		}
     }
 
     // Render any lighting

@@ -152,6 +152,18 @@ public:
         return _transforms;
     }
 
+	virtual bool IsVisible() const {
+		return _visible;
+	}
+
+	virtual int GetInstancesRendered() const {
+		return _instances_rendered;
+	}
+
+	virtual void SetInstancesRendered(int count) {
+		_instances_rendered = count;
+	}
+
     bool IsValidTransform(GfMatrix4f m);
     
 
@@ -261,6 +273,9 @@ private:
 	VtVec3fArray _normals;
 	VtVec3fArray _uvs;
 	int _refineLevel;
+	bool _visible = true;
+
+	int _instances_rendered = 0;
 
     // This class does not support copying.
     HdLuxCoreMesh(const HdLuxCoreMesh&)             = delete;

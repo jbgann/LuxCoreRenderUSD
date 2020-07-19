@@ -181,15 +181,19 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     HdRenderIndex &renderIndex = sceneDelegate->GetRenderIndex();
     HdInstancer *instancer = renderIndex.GetInstancer(GetInstancerId());
 
-    if (!GetInstancerId().IsEmpty()) {
-		VtMatrix4dArray mt = static_cast<HdLuxCoreInstancer*>(instancer)->ComputeInstanceTransforms(GetId());
-		for (size_t i = 0; i < mt.size(); i++) {
-			_transforms.push_back(new GfMatrix4d(mt[i]));
+	if (*dirtyBits & HdChangeTracker::DirtyTransform) {
+		_transforms = TfMatrix4dVector();
+		if (!GetInstancerId().IsEmpty()) {
+			VtMatrix4dArray mt = static_cast<HdLuxCoreInstancer*>(instancer)->ComputeInstanceTransforms(GetId());
+			for (size_t i = 0; i < mt.size(); i++) {
+				_transforms.push_back(new GfMatrix4d(mt[i]));
+			}
 		}
-    } else {
-        GfMatrix4d *transform = new GfMatrix4d(sceneDelegate->GetTransform(GetId()));
-        _transforms.push_back(transform);
-    }
+		else {
+			GfMatrix4d *transform = new GfMatrix4d(sceneDelegate->GetTransform(GetId()));
+			_transforms.push_back(transform);
+		}
+	}
 
 	// Get the mesh complexity level for OpenSubdiv
 	HdDisplayStyle const displayStyle = GetDisplayStyle(sceneDelegate);
@@ -199,11 +203,11 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
     _points = value.Get<VtVec3fArray>();
     _topology = HdMeshTopology(GetMeshTopology(sceneDelegate));
 
-	VtValue normals_value = sceneDelegate->Get(GetId(), HdTokens->normals);
-	if (normals_value.IsHolding<VtVec3fArray>())
-		_normals = normals_value.Get<VtVec3fArray>();
-	else
-		_normals = VtVec3fArray();
+	if (*dirtyBits & HdChangeTracker::DirtyVisibility) {
+		_visible = sceneDelegate->GetVisible(GetId());
+	}
+
+	*dirtyBits = HdChangeTracker::Clean;
 }
 
 // The following block is adapted from the LuxCore rendering system
