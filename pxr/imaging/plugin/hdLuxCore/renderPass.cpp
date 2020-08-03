@@ -180,6 +180,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Render any lighting
     TfHashMap<std::string, HdLuxCoreLight*> lightMap = renderDelegateLux->_sprimLightMap;
     TfHashMap<std::string, HdLuxCoreLight*>::iterator l_iter;
+    std::string light_type;
 
     // If we already have lighting, remove the default light
     if (lightMap.size() > 0) {
@@ -193,8 +194,12 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             GfMatrix4d transform = light->GetLightTransform();
             std::string light_id = light->GetId().GetString();
             GfVec3f color = light->GetColor();
+            if (light->GetTreatAsPoint())
+                light_type = "point";
+            else
+                light_type = "sphere";
             lc_scene->Parse(
-                luxrays::Property("scene.lights." + light_id + ".type")("point") <<
+                luxrays::Property("scene.lights." + light_id + ".type")(light_type) <<
                 luxrays::Property("scene.lights." + light_id + ".color")(color[0], color[1], color[2]) <<
                 luxrays::Property("scene.lights." + light_id + ".position")(transform[3][0], transform[3][1], transform[3][2])
             );

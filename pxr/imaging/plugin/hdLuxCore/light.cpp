@@ -23,6 +23,7 @@ void HdLuxCoreLight::Sync(HdSceneDelegate* sceneDelegate, HdRenderParam* renderP
         _color = sceneDelegate->GetLightParamValue(GetId(), HdPrimvarRoleTokens->color).Get<GfVec3f>();
         _intensity = sceneDelegate->GetLightParamValue(GetId(), HdLightTokens->intensity).Get<float>();
         _exposure = sceneDelegate->GetLightParamValue(GetId(), HdLightTokens->exposure).Get<float>();
+        _treatAsPoint = sceneDelegate->GetLightParamValue(GetId(), UsdLuxTokens->treatAsPoint).GetWithDefault(false);
     }
 }
 

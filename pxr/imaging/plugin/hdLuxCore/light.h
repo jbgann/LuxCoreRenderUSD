@@ -55,6 +55,10 @@ class HdLuxCoreLight : public HdLight {
             _created = created;
         }
 
+	virtual bool GetTreatAsPoint() const {
+            return _treatAsPoint;
+        }
+
     private:
         GfMatrix4d _transform;
         float _intensity = 1.0;
@@ -62,6 +66,7 @@ class HdLuxCoreLight : public HdLight {
         GfVec3f _color = GfVec3f(1.0f);
         const TfToken _lightType;
         bool _created;
+        bool _treatAsPoint;
 };
 
 PXR_NAMESPACE_CLOSE_SCOPE
