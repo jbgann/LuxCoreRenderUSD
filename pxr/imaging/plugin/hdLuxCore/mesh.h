@@ -156,6 +156,10 @@ public:
 		return _visible;
 	}
 
+	virtual bool IsRefineDirty() const {
+		return _refineLevelDirty;
+	}
+
 	virtual int GetInstancesRendered() const {
 		return _instances_rendered;
 	}
@@ -165,6 +169,9 @@ public:
 	}
 
     bool IsValidTransform(GfMatrix4f m);
+
+    // Deletes the underlying mesh structure in LuxCore
+    void DeleteLuxCoreTriangleMesh(HdRenderParam *renderParam);
     
 
 protected:
@@ -215,7 +222,6 @@ private:
     void _CreatePrimvarSampler(TfToken const& name, VtValue const& data,
                                HdInterpolation interpolation,
                                bool refined);
-
 private:
     // Note:
     // Every HdLuxCoreMesh is treated as instanced; if there's no instancer,
@@ -273,6 +279,8 @@ private:
 	VtVec3fArray _normals;
 	VtVec3fArray _uvs;
 	int _refineLevel;
+        // Used to delete and recreate the mesh when the complexity changes
+	bool _refineLevelDirty = false;
 	bool _visible = true;
 
 	int _instances_rendered = 0;

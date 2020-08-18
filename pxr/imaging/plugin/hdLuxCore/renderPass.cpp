@@ -138,10 +138,17 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         HdLuxCoreMesh *mesh = iter->second;
 		TfMatrix4dVector transforms = mesh->GetTransforms();;
 
-		if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
-			mesh->CreateLuxCoreTriangleMesh(renderParam);
+                // If the complexity has changed or the mesh has been made invisible, delete it from LuxCore
+                if (mesh->IsRefineDirty() || !mesh->IsVisible() && mesh->GetInstancesRendered() > 0) {
+                    mesh->DeleteLuxCoreTriangleMesh(renderParam);
+                }
+
+                // If the mesh prototype is visible and not defined in LuxCore create it (note it may have just been deleted above)
+		if (mesh->IsVisible() && mesh->GetInstancesRendered() != transforms.size()) {
+		    mesh->CreateLuxCoreTriangleMesh(renderParam);
 		}
 
+                // If the mesh is visible but more instances have been created than are rendered, add them
 		if (mesh->IsVisible() && mesh->GetInstancesRendered() != transforms.size()) {
 			// We can assume that there will always be one transform per mesh prototype
 			for (size_t i = 0; i < transforms.size(); i++)
@@ -157,23 +164,6 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 				lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
 			}
 			mesh->SetInstancesRendered(transforms.size());
-		}
-		else {
-			if (!mesh->IsVisible() && mesh->GetInstancesRendered() > 0) {
-				// We can assume that there will always be one transform per mesh prototype
-				for (size_t i = 0; i < transforms.size(); i++)
-				{
-					GfMatrix4d *t = transforms[i];
-					GfMatrix4f m = GfMatrix4f(*t);
-
-					std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
-					// Work around a bug in LuxCore -- remove the previous transformation so
-					// it doesn't get re-added if/when the object is re-instanced
-					lc_scene->UpdateObjectTransformation(instanceName, m.GetInverse().GetArray());
-					lc_scene->DeleteObject(instanceName);
-				}
-				mesh->SetInstancesRendered(0);
-			}
 		}
     }
 

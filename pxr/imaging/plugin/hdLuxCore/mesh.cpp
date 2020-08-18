@@ -94,15 +94,41 @@ HdLuxCoreMesh::Finalize(HdRenderParam *renderParam)
 {
     logit(BOOST_CURRENT_FUNCTION);
 
-    Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
     RenderSession *lc_session = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_session;
     SdfPath const& id = GetId();
 
     lc_session->BeginSceneEdit();
-    if (lc_scene->IsMeshDefined(id.GetString())) {
-        lc_scene->DeleteObject(id.GetString());
-    }
+    DeleteLuxCoreTriangleMesh(renderParam);
     lc_session->EndSceneEdit();
+}
+
+void
+HdLuxCoreMesh::DeleteLuxCoreTriangleMesh(HdRenderParam *renderParam)
+{
+    logit(BOOST_CURRENT_FUNCTION);
+
+    SdfPath const& id = GetId();
+    Scene *lc_scene = reinterpret_cast<HdLuxCoreRenderParam*>(renderParam)->_scene;
+    TfMatrix4dVector transforms = GetTransforms();;
+
+    if (!lc_scene->IsMeshDefined(id.GetString()))
+        return;
+
+    if (GetInstancesRendered() > 0) {
+        for (size_t i = 0; i < transforms.size(); i++)
+	{
+            GfMatrix4d *t = transforms[i];
+            GfMatrix4f m = GfMatrix4f(*t);
+
+            std::string instanceName = id.GetString() + std::to_string(i);
+            // Work around a bug in LuxCore -- remove the previous transformation so
+            // it doesn't get re-added if/when the object is re-instanced
+            lc_scene->UpdateObjectTransformation(instanceName, m.GetInverse().GetArray());
+            lc_scene->DeleteObject(instanceName);
+        }
+        SetInstancesRendered(0);
+    }
+    lc_scene->RemoveUnusedMeshes();
 }
 
 HdDirtyBits
@@ -197,7 +223,12 @@ HdLuxCoreMesh::Sync(HdSceneDelegate *sceneDelegate,
 
 	// Get the mesh complexity level for OpenSubdiv
 	HdDisplayStyle const displayStyle = GetDisplayStyle(sceneDelegate);
-	_refineLevel = displayStyle.refineLevel;
+        // If the complexity has changed then set a dirty flag to indicate the LuxCore mesh needs to be recreated
+        // later on in the renderPass via DeleteLuxCoreTriangleMesh and CreateLuxCoreTriangleMesh
+        if (_refineLevel != displayStyle.refineLevel) {
+	    _refineLevel = displayStyle.refineLevel;
+            _refineLevelDirty = true;
+        }
 
     VtValue value = sceneDelegate->Get(GetId(), HdTokens->points);
     _points = value.Get<VtVec3fArray>();
@@ -240,10 +271,6 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
 
     // Used to name the type of mesh in LuxCore
     SdfPath const& id = GetId();
-
-    if (lc_scene->IsMeshDefined(id.GetString())) {
-        return false;
-    }
 
     // Triangulate the input faces.
     HdMeshUtil meshUtil(&_topology, GetId());
@@ -425,6 +452,9 @@ HdLuxCoreMesh::CreateLuxCoreTriangleMesh(HdRenderParam* renderParam)
     }
 
     lc_scene->DefineMesh(id.GetString(), _points.size(), _triangulatedIndices.size(), verticies, triangle_indicies,  NULL, NULL, NULL, NULL);
+
+    // The mesh is now freshly created so reset the complexity change flag check back to false
+    _refineLevelDirty = false;
 
     return true;
 }
