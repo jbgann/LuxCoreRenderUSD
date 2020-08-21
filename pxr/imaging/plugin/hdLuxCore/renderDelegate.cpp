@@ -138,9 +138,9 @@ HdLuxCoreRenderDelegate::_Initialize()
         luxrays::Property("scene.materials.mat_default.kd")(.75f, .75f, .75f)
     );
 
-    // Use the PATHCPU engine for development
+    // Use the PATHOCL engine to enable OpenCL
     lc_config = luxcore::RenderConfig::Create(
-        luxrays::Property("renderengine.type")("PATHCPU") <<
+        luxrays::Property("renderengine.type")("PATHOCL") <<
         luxrays::Property("sampler.type")("RANDOM"),
         lc_scene
     );
