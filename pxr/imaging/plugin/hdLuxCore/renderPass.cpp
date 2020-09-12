@@ -101,11 +101,11 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
         // The calculations in the following two code blocks are borrowed from the excellent hdospray project
         // Source: https://github.com/ospray/hdospray
-        GfVec3f origin = GfVec3f(0, 0, 0);
-        GfVec3f direction = GfVec3f(0, 0, -1);
-        GfVec3f up = GfVec3f(0, 1, 0);
+        GfVec3d origin = GfVec3d(0, 0, 0);
+        GfVec3d direction = GfVec3d(0, 0, -1);
+        GfVec3d up = GfVec3d(0, 1, 0);
         double projectionMatrix[4][4];
-        float fieldOfView;
+        double fieldOfView;
 
         renderPassState->GetProjectionMatrix().Get(projectionMatrix);
         fieldOfView = (atan(1.0 / projectionMatrix[1][1]) * 180.0 * 2.0) / M_PI;
