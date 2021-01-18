@@ -121,9 +121,10 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
             luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
             luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
-            luxrays::Property("scene.camera.fieldofview")(fieldOfView)
+            luxrays::Property("scene.camera.fieldofview")(32.0)
             );
         lc_session->Start();
+            cout << "C:" << origin[0] << " " << origin[1] << " " << origin[2] << "\r\n";
     }
 
     lc_session->Pause();
@@ -213,6 +214,7 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     if (lc_session->HasDone())
         _converged = true;
 
+    lc_session->GetFilm().SaveOutputs();
     // Copy the LuxCore film render into a buffer
     unique_ptr<float[]> pxl_buffer(new float[_width * _height * 3]);
     lc_session->GetFilm().GetOutput<float>(Film::OUTPUT_RGB_IMAGEPIPELINE, pxl_buffer.get(), 0);

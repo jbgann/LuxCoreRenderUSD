@@ -125,11 +125,11 @@ HdLuxCoreRenderDelegate::_Initialize()
     // LuxCore requires at least one light source in order to initialize the renderer
     // This default light is removed later on unless lighting is missing from the USD scene file
     lc_scene->Parse(
-        luxrays::Property("scene.lights.light_default.type")("point") <<
+        luxrays::Property("scene.lights.light_default.type")("sphere") <<
         luxrays::Property("scene.lights.light_default.color")(1.0, 1.0, 1.0) <<
         luxrays::Property("scene.lights.light_default.gain")(1.0, 1.0, 1.0) <<
-        luxrays::Property("scene.lights.light_default.direction")(1.0, 1.0, 1.0) <<
-        luxrays::Property("scene.lights.light_default.position")(1.0, 1.0, 1.0)
+        luxrays::Property("scene.lights.light_default.direction")(0.0, 0.0, 0.0) <<
+        luxrays::Property("scene.lights.light_default.position")(0.0, 100.0, 0.0)
     );
 
     // Default material used for all renders
