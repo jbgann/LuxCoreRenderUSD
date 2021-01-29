@@ -7,7 +7,7 @@ export LUXCORERENDERUSD_REPO=~/masters/LuxCoreRenderUSD
 rm -rf build
 cmake -B build .
 cd build
-cmake --build . --config Release
+cmake --build . --config Release -- VERBOSE=1
 cd ..
 
 # Copy the plugin library

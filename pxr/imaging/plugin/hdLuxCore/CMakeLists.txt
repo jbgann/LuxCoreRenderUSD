@@ -61,5 +61,46 @@ pxr_plugin(hdLuxCore
         plugInfo.json
 )
 
+
+find_package(PythonInterp 2.7 REQUIRED)
+set(PXR_HEADLESS_TEST_MODE ON)
+
+pxr_build_test(testHdLuxCore
+    INCLUDE_DIRS
+        ${TBB_INCLUDE_DIRS}
+
+    CPPFILES
+        testenv/testHdLuxCore.cpp
+
+    LIBRARIES
+        ${PYTHON_LIBRARIES}
+        ar
+        arch
+        sdf
+        trace
+        plug
+        tf
+        vt
+        gf
+        work
+        hf
+        hd
+        hdSt
+        hdx
+        usdLux
+        usdUtils
+        pxOsd
+        GL
+        
+        ${Boost_LIBRARIES} 
+        ${RIF_LIBRARY}
+        ${OPENSUBDIV_LIBRARIES}
+        ${TBB_tbb_LIBRARY}
+        ${OPENGL_gl_LIBRARY}
+        hdLuxCore
+)
+
+
 # Install the resource file for USD
 configure_file(plugInfo.json ${USD_ROOT}/plugin/usd/hdLuxCore/resources/plugInfo.json @ONLY)
+
