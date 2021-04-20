@@ -125,23 +125,25 @@ HdLuxCoreRenderDelegate::_Initialize()
     // LuxCore requires at least one light source in order to initialize the renderer
     // This default light is removed later on unless lighting is missing from the USD scene file
     lc_scene->Parse(
-        luxrays::Property("scene.lights.light_default.type")("point") <<
+        luxrays::Property("scene.lights.light_default.type")("distant") <<
         luxrays::Property("scene.lights.light_default.color")(1.0, 1.0, 1.0) <<
         luxrays::Property("scene.lights.light_default.gain")(1.0, 1.0, 1.0) <<
-        luxrays::Property("scene.lights.light_default.direction")(1.0, 1.0, 1.0) <<
-        luxrays::Property("scene.lights.light_default.position")(1.0, 1.0, 1.0)
+        luxrays::Property("scene.lights.light_default.direction")(1, 1, -1.0) //<<
+        //luxrays::Property("scene.lights.light_default.position")(1.0, 1.0, 1.0)
     );
 
     // Default material used for all renders
     lc_scene->Parse(
         luxrays::Property("scene.materials.mat_default.type")("matte") <<
-        luxrays::Property("scene.materials.mat_default.kd")(.75f, .75f, .75f)
+        luxrays::Property("scene.materials.mat_default.kd")(.25f, .25f, .25f)
     );
 
     // Use the PATHCPU engine for development
+    //Set renders to halt after 10 minutes (by default, LuxCore never stops)
     lc_config = luxcore::RenderConfig::Create(
         luxrays::Property("renderengine.type")("PATHCPU") <<
-        luxrays::Property("sampler.type")("RANDOM"),
+        luxrays::Property("sampler.type")("RANDOM") /*<<
+        luxrays::Property("batch.halttime")(6.0f)*/,
         lc_scene
     );
 

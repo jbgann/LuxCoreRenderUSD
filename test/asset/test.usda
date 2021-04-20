@@ -1,0 +1,47 @@
+#usda 1.0
+(
+)
+
+def Sphere "sphere1"
+{
+    double radius = .5
+}
+
+def Sphere "sphere2"
+{
+    double radius = .2
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (-4, .938795344531536, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+
+def Xform "grid1" (
+    kind = "component"
+)
+{
+    def Mesh "mesh_0"
+    {
+        int[] faceVertexCounts = [4, 4, 4, 4]
+        int[] faceVertexIndices = [0, 1, 4, 3, 1, 2, 5, 4, 3, 4, 7, 6, 4, 5, 8, 7]
+        point3f[] points = [(-1.5, 0, -1.5), (0, 0, -1.5), (1.5, 0, -1.5), (-1.5, 0, 0), (0, 0, 0), (1.5, 0, 0), (-1.5, 0, 1.5), (0, 0, 1.5), (1.5, 0, 1.5)] (
+        )
+    }
+}
+
+
+def Camera "camera1"
+{
+    float2 clippingRange = (0.41154212, 3804.7612)
+    float focalLength = 50
+    float focusDistance = 5
+    float fStop = 0
+    float horizontalAperture = 20.955
+    float horizontalApertureOffset = 0
+    token projection = "perspective"
+    double shutter:close = 0.25
+    double shutter:open = -0.25
+    float verticalAperture = 15.2908
+    float verticalApertureOffset = 0
+    matrix4d xformOp:transform = ( (0.9106347878037547, 2.6174471494590526e-8, -0.4132121528241997, 0), (-0.1486109625261005, 0.9330880388993038, -0.32750800521531853, 0), (0.385563308755743, 0.35964803859196903, 0.8497024321951027, 0), (4.2715329239645365, 4.464128933520954, 9.474410398845624, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}

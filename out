@@ -1,0 +1,450 @@
+
+c:\masters\LuxCoreRenderUSD>usdview --renderer LuxCore test\asset\geo_GridSphereLightCam.004.usd_scene.usda 
+Starting HdLuxCoreRendererPlugin::IsSupported()
+Starting HdLuxCoreRendererPlugin::CreateRenderDelegate()
+HdLuxCoreRenderer::HdLuxCoreRenderer() start
+HdLuxCoreRenderer::HdLuxCoreRenderer() end
+HdLuxCoreRenderDelegate::HdLuxCoreRenderDelegate()
+HdLuxCoreRenderDelegate::_Initialize()
+HdLuxCoreRenderDelegate::GetSupportedSprimTypes()
+HdLuxCoreRenderDelegate::GetSupportedBprimTypes()
+HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
+HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
+HdLuxCoreRenderDelegate::CreateFallbackSprim(TfToken const& typeId)
+HdLuxCoreRenderDelegate::CreateFallbackBprim(TfToken const& typeId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetSupportedSprimTypes()
+HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId) /_UsdImaging_HdLuxCoreRendererPlugin_000000000655FC10/camera
+HdLuxCoreRenderDelegate::GetSupportedBprimTypes()
+HdLuxCoreRenderDelegate::GetSupportedBprimTypes()
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::CreateBprim(TfToken const& typeId, SdfPath const& bprimId)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetSupportedBprimTypes()
+HdLuxCoreRenderDelegate::GetSupportedRprimTypes()
+HdLuxCoreRenderDelegate::GetSupportedRprimTypes()
+HdLuxCoreRenderDelegate::GetSupportedSprimTypes()
+HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)
+HdLuxCoreRenderDelegate::CreateRprim(TfToken const& typeId, SdfPath const& rprimId, SdfPath const& instancerId)
+HdLuxCoreRenderDelegate::CreateSprim(TfToken const& typeId, SdfPath const& sprimId) /lights/light1
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Sync() start
+HdLuxCoreRenderBuffer::Sync() inside dirtybits & dirtydescription block start
+A
+B
+C
+HdLuxCoreRenderBuffer::Before HdRenderBuffer::Sync()
+HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdLuxCoreRenderBuffer::Sync() end
+HdLuxCoreRenderBuffer::Sync() start
+HdLuxCoreRenderBuffer::Sync() inside dirtybits & dirtydescription block start
+A
+B
+C
+HdLuxCoreRenderBuffer::Before HdRenderBuffer::Sync()
+HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdLuxCoreRenderBuffer::Sync() end
+HdLuxCoreRenderBuffer::Sync() start
+HdLuxCoreRenderBuffer::Sync() inside dirtybits & dirtydescription block start
+A
+B
+C
+HdLuxCoreRenderBuffer::Before HdRenderBuffer::Sync()
+HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdLuxCoreRenderBuffer::Sync() end
+HdLuxCoreRenderBuffer::Sync() start
+HdLuxCoreRenderBuffer::Sync() inside dirtybits & dirtydescription block start
+A
+B
+C
+HdLuxCoreRenderBuffer::Before HdRenderBuffer::Sync()
+HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdLuxCoreRenderBuffer::Sync() end
+HdLuxCoreRenderBuffer::Sync() start
+HdLuxCoreRenderBuffer::Sync() inside dirtybits & dirtydescription block start
+A
+B
+C
+HdLuxCoreRenderBuffer::Before HdRenderBuffer::Sync()
+HdLuxCoreRenderBuffer::Allocate(GfVec3i const& dimensions,HdFormat format,bool multiSampled)
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderBuffer::_GetBufferSize(GfVec2i const &dims, HdFormat format)
+HdLuxCoreRenderBuffer::Sync() end
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreCamera::Sync
+_transform: ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+Camera Transform:( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::CreateRenderPass(HdRenderIndex *index, HdRprimeCollection const& collection)
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderBuffer::HdLuxCoreRenderBuffer()
+HdLuxCoreRenderPass::HdLuxCoreRenderPass()
+LOG: LOG: Mon May  4 18:05:21 2020
+ Thread: Mon May  4 18:05:21 2020
+ Thread: 135205904HdLuxCoreMesh::SyncHdLuxCoreMesh::Sync
+
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:21 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+scene.camera.lookat.orig: 0 0 0
+( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )_CreateLuxCoreTriangleMesh _CreateLuxCoreTriangleMesh HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreCamera::Sync
+_transform: ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+Camera Transform:( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:21 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+scene.camera.lookat.orig: 0 0 0
+( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetSupportedBprimTypes()
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetDefaultAovDescriptor(TfToken const& name) const
+HdLuxCoreRenderDelegate::GetRenderSettingDescriptors()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:22 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:22 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:22 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:22 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:22 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:23 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreLight::Sync
+HdLuxCoreRenderDelegate::GetResourceRegistry()
+HdLuxCoreRenderDelegate::CommitResources(HdChangeTracker *tracker)
+LOG: Mon May  4 18:05:24 2020
+ Thread: 13520HdLuxCoreRenderPass::_Execute()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Resolve()
+HdFormat HdLuxCoreRenderBuffer::_GetSampleFormat(HdFormat format)
+HdLuxCoreRenderBuffer::Resolve()
+HdLuxCoreRenderPass::IsConverged()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
+HdLuxCoreRenderPass::~HdLuxCoreRenderPass()
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::GetRenderParam()
+Object is being deletedHdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+Object is being deletedpixar
+HdLuxCoreRenderDelegate::DestroyRprim(HdRprim *rPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderDelegate::DestroySprim(HdSprim *sPrim)
+HdLuxCoreRenderDelegate::GetRenderParam()
+HdLuxCoreRenderBuffer::Finalize()
+A
+B
+C
+HdLuxCoreRenderBuffer::_Deallocate()
+HdLuxCoreRenderDelegate::DestroyBprim(HdBprim *bPrim)
+HdLuxCoreRenderBuffer::~HdLuxCoreRenderBuffer()
+HdLuxCoreRenderDelegate::~HdLuxCoreRenderDelegate()
+HdLuxCoreRenderer::~HdLuxCoreRenderer()

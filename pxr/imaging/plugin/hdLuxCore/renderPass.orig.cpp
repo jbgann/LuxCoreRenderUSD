@@ -35,8 +35,12 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
                                        HdRprimCollection const &collection,
+                                       HdRenderThread *renderThread,
+                                       HdLuxCoreRenderer *renderer,
                                        std::atomic<int> *sceneVersion)
     : HdRenderPass(index, collection)
+    , _renderThread(renderThread)
+    , _renderer(renderer)
     , _sceneVersion(sceneVersion)
     , _lastSceneVersion(0)
     , _lastSettingsVersion(0)
@@ -45,29 +49,49 @@ HdLuxCoreRenderPass::HdLuxCoreRenderPass(HdRenderIndex *index,
     , _viewMatrix(1.0f) // == identity
     , _projMatrix(1.0f) // == identity
     , _aovBindings()
+    , _colorBuffer(SdfPath::EmptyPath())
+    , _depthBuffer(SdfPath::EmptyPath())
     , _converged(false)
 {
-    logit(BOOST_CURRENT_FUNCTION);
+    cout << "HdLuxCoreRenderPass::HdLuxCoreRenderPass()\n";
 }
 
 HdLuxCoreRenderPass::~HdLuxCoreRenderPass()
 {
-    logit(BOOST_CURRENT_FUNCTION);
+    cout << "HdLuxCoreRenderPass::~HdLuxCoreRenderPass()\n";
+    // Make sure the render thread's not running, in case it's writing
+    // to _colorBuffer/_depthBuffer.
+    _renderThread->StopRender();
 }
 
 bool
 HdLuxCoreRenderPass::IsConverged() const
 {
-    logit(BOOST_CURRENT_FUNCTION);
+    cout << "HdLuxCoreRenderPass::IsConverged()\n";
+    // If the aov binding array is empty, the render thread is rendering into
+    // _colorBuffer and _depthBuffer.  _converged is set to their convergence
+    // state just before blit, so use that as our answer.
+    if (_aovBindings.size() == 0) {
+        return _converged;
+    }
 
-    return _converged;
+    // Otherwise, check the convergence of all attachments.
+    for (size_t i = 0; i < _aovBindings.size(); ++i) {
+        if (_aovBindings[i].renderBuffer &&
+            !_aovBindings[i].renderBuffer->IsConverged()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void
 HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
                              TfTokenVector const &renderTags)
-{
-    logit(BOOST_CURRENT_FUNCTION);
+{/*
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(static_cast<size_t>(1*1000))); */
+    logit("HdLuxCoreRenderPass::_Execute()");
 
     HdRenderDelegate *renderDelegate = GetRenderIndex()->GetRenderDelegate();
     HdLuxCoreRenderDelegate *renderDelegateLux = reinterpret_cast<HdLuxCoreRenderDelegate*>(renderDelegate);
@@ -85,41 +109,62 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
         lc_session->Pause();
         lc_session->Parse(
             luxrays::Property("film.width")(_width) <<
-            luxrays::Property("film.height")(_height)
+		    luxrays::Property("film.height")(_height)
         );
         lc_session->Resume();
     }
+
+    // Information for the camera rearchitecture
+    //https://github.com/LuxCoreRender/BlendLuxCore/blob/11c36e27f4ed0d587ada0b692584a22d8b2ae8cd/export/camera.py
+/*
+def _calc_lookat(cam_matrix, scene):
+    lookat_orig = list(cam_matrix.to_translation())
+    lookat_target = list(cam_matrix @ Vector((0, 0, -1)))
+    up_vector = list(cam_matrix.to_3x3() @ Vector((0, 1, 0)))
+    return lookat_orig, lookat_target, up_vector
+*/
 
     GfMatrix4d current_inverseViewMatrix = renderPassState->GetWorldToViewMatrix().GetInverse();
     GfMatrix4d current_inverseProjectionMatrix = renderPassState->GetProjectionMatrix().GetInverse();
 
     // Has the view or projection matrix changed?  Reset the camera if so.
     if (current_inverseViewMatrix != _inverseViewMatrix || current_inverseProjectionMatrix != _inverseProjectionMatrix) {
-        _converged = false;
         _inverseViewMatrix = current_inverseViewMatrix;
         _inverseProjectionMatrix = current_inverseProjectionMatrix;
 
-        // The calculations in the following two code blocks are largely inspired, but differ significantly
-        // from the excelent OSPray render delegate project
+        // The calculations in the following two code blocks are borrowed from the excellent hdospray project
         // Source: https://github.com/ospray/hdospray
-        GfVec3d origin = GfVec3d(0, 0, 0);
-        GfVec3d direction = GfVec3d(0, 0, -1);
-        GfVec3d up = GfVec3d(0, 1, 0);
+        GfVec3f origin = GfVec3f(0, 0, 0);
+        GfVec3f direction = GfVec3f(0, 0, -1);
+        GfVec3f up = GfVec3f(0, 1, 0);
         double projectionMatrix[4][4];
-        double fieldOfView;
+        float fieldOfView;
 
         renderPassState->GetProjectionMatrix().Get(projectionMatrix);
         fieldOfView = (atan(1.0 / projectionMatrix[1][1]) * 180.0 * 2.0) / M_PI;
-        //direction = _inverseProjectionMatrix.Transform(direction);
-        //direction = _inverseViewMatrix.TransformDir(direction)/*.GetNormalized()*/;
         direction = _inverseProjectionMatrix.Transform(direction);
-        direction = _inverseViewMatrix.Transform(direction);
+        direction = _inverseViewMatrix.TransformDir(direction).GetNormalized();
         up = _inverseViewMatrix.TransformDir(up).GetNormalized();
         origin = _inverseViewMatrix.Transform(origin);
-        cout << "lookat:" << direction;
 
+        //cout << "scene.camera.lookat.orig: " << origin[0] << " " << origin[1] << " " << origin[2] << "\n" << std::flush;
         // Stopping the session allows the camera to be reset
         lc_session->Stop();
+
+        
+        HdLuxCoreCamera *camera = renderDelegateLux->_camera;
+        GfMatrix4d t = camera->GetCameraTransform();
+
+        // First attempt at determining the origin from the camera transform cords -- didn't quite work..
+        // try again next time or figure out how USD intends us to do this
+        /*lc_scene->Parse(luxrays::Properties() <<
+            luxrays::Property("scene.camera.type")("perspective") <<
+            luxrays::Property("scene.camera.lookat.orig")(t[3][0], t[3][1], t[3][2]) <<
+            luxrays::Property("scene.camera.lookat.target")(direction[0], direction[1], direction[2]) <<
+            luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
+            luxrays::Property("scene.camera.fieldofview")(fieldOfView)
+            );*/
+
         lc_scene->Parse(luxrays::Properties() <<
             luxrays::Property("scene.camera.type")("perspective") <<
             luxrays::Property("scene.camera.lookat.orig")(origin[0], origin[1], origin[2]) <<
@@ -127,6 +172,11 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             luxrays::Property("scene.camera.up")(up[0], up[1], up[2]) <<
             luxrays::Property("scene.camera.fieldofview")(fieldOfView)
             );
+/*
+        lc_scene->Parse(luxrays::Properties() <<
+                luxrays::Property("scene.camera.type")("perspective") <<
+				luxrays::Property("scene.camera.lookat.orig")(11.f , 10.f , 2.f)); */
+        
         lc_session->Start();
     }
 
@@ -140,56 +190,29 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
     // Instantiate LuxCore mesh instances
     for (iter = meshMap.begin(); iter != meshMap.end(); ++iter) {
         HdLuxCoreMesh *mesh = iter->second;
-		TfMatrix4dVector transforms = mesh->GetTransforms();;
 
-		if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
-			mesh->CreateLuxCoreTriangleMesh(renderParam);
-		}
-
-		if (mesh->IsVisible() && mesh->GetInstancesRendered() != transforms.size()) {
-			// We can assume that there will always be one transform per mesh prototype
-			for (size_t i = 0; i < transforms.size(); i++)
-			{
-				GfMatrix4d *t = transforms[i];
-				GfMatrix4f m = GfMatrix4f(*t);
-
-				std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
-				lc_scene->Parse(
-					luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
-					luxrays::Property("scene.objects." + instanceName + ".material")("mat_default")
-				);
-				lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
-			}
-			mesh->SetInstancesRendered(transforms.size());
-		}
-		else {
-			if (!mesh->IsVisible() && mesh->GetInstancesRendered() > 0) {
-				// We can assume that there will always be one transform per mesh prototype
-				for (size_t i = 0; i < transforms.size(); i++)
-				{
-					GfMatrix4d *t = transforms[i];
-					GfMatrix4f m = GfMatrix4f(*t);
-
-					std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
-					// Work around a bug in LuxCore -- remove the previous transformation so
-					// it doesn't get re-added if/when the object is re-instanced
-					lc_scene->UpdateObjectTransformation(instanceName, m.GetInverse().GetArray());
-					lc_scene->DeleteObject(instanceName);
-				}
-				mesh->SetInstancesRendered(0);
-			}
-		}
+        if (!lc_scene->IsMeshDefined(mesh->GetId().GetString())) {
+            if (mesh->CreateLuxCoreTriangleMesh(renderParam)) {
+                TfMatrix4dVector transforms = mesh->GetTransforms();
+                // We can assume that there will always be one transform per mesh prototype
+                for (size_t i = 0; i < transforms.size(); i++)
+                {
+                    std::string instanceName = mesh->GetId().GetString() + std::to_string(i);
+                    lc_scene->Parse(
+                        luxrays::Property("scene.objects." + instanceName + ".shape")(mesh->GetId().GetString()) <<
+                        luxrays::Property("scene.objects." + instanceName + ".material")("mat_red")
+                    );
+                    GfMatrix4d *t = transforms[i];
+                    GfMatrix4f m = GfMatrix4f(*t);
+                    lc_scene->UpdateObjectTransformation(instanceName, m.GetArray());
+                }
+            }
+        }
     }
 
     // Render any lighting
     TfHashMap<std::string, HdLuxCoreLight*> lightMap = renderDelegateLux->_sprimLightMap;
     TfHashMap<std::string, HdLuxCoreLight*>::iterator l_iter;
-    std::string light_type;
-
-    // If we already have lighting, remove the default light
-    if (lightMap.size() > 0) {
-        lc_scene->DeleteLight("light_default");
-    }
 
     for (l_iter = lightMap.begin(); l_iter != lightMap.end(); ++l_iter) {
         HdLuxCoreLight *light = l_iter->second;
@@ -198,12 +221,8 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
             GfMatrix4d transform = light->GetLightTransform();
             std::string light_id = light->GetId().GetString();
             GfVec3f color = light->GetColor();
-            if (light->GetTreatAsPoint())
-                light_type = "point";
-            else
-                light_type = "sphere";
             lc_scene->Parse(
-                luxrays::Property("scene.lights." + light_id + ".type")(light_type) <<
+                luxrays::Property("scene.lights." + light_id + ".type")("sphere") <<
                 luxrays::Property("scene.lights." + light_id + ".color")(color[0], color[1], color[2]) <<
                 luxrays::Property("scene.lights." + light_id + ".position")(transform[3][0], transform[3][1], transform[3][2])
             );
@@ -212,10 +231,6 @@ HdLuxCoreRenderPass::_Execute(HdRenderPassStateSharedPtr const& renderPassState,
 
     lc_session->EndSceneEdit();
     lc_session->Resume();
-
-    // Determine if the scene has finished rendering
-    if (lc_session->HasDone())
-        _converged = true;
 
     // Copy the LuxCore film render into a buffer
     unique_ptr<float[]> pxl_buffer(new float[_width * _height * 3]);

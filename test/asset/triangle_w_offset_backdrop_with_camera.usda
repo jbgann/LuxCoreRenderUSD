@@ -1,0 +1,44 @@
+#usda 1.0
+
+def Xform "basic"
+{
+    def Mesh "triangle"
+    {
+        float3[] extent = [(-2, -2, -2), (2, 2, 2)]
+        int[] faceVertexCounts = [3]
+        int[] faceVertexIndices = [0, 1, 2]
+        point3f[] points = [(-1, -1, -1), (-1, 1, 1), (1, -1, 1)]
+    }
+}
+
+def Xform "backdrop"
+{
+    def Mesh "square"
+    {
+        float3[] extent = [(-5, -5, -5), (5, 5, 5)]
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        point3f[] points = [(-3, -3, 0), (-3, 3, 0), (3, 3, 0), (3, -3, 0)]
+        float xformOp:rotateZ = 45
+        double3 xformOp:translate = (0, 0, -1)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+    }
+}
+
+def Camera "camera1"
+{
+    float2 clippingRange = (0.41154212, 3804.7612)
+    float focalLength = 50
+    float focusDistance = 5
+    float fStop = 0
+    float horizontalAperture = 20.955
+    float horizontalApertureOffset = 0
+    token projection = "perspective"
+    double shutter:close = 0.25
+    double shutter:open = -0.25
+    float verticalAperture = 15.2908
+    float verticalApertureOffset = 0
+    double3 xformOp:translate = (0, 0, 20)
+    float xformOp:rotateX = -90
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateX"]
+}
